@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "package": "org.tabernacle.walkthrough",
+  "build": "Succeeded with zero build errors",
+  "signature": "APK Signature Scheme v2 verified",
+  "apk_bytes": 62486038,
+  "sha256": "d62df1a74a16d236455e815d86a0a5d83fee88fb970fa6b1aafa338a583f9b32",
+  "visual_changes": [
+    "Photographic material maps and fine surface relief",
+    "Modeled woven fabric folds and embroidered veil",
+    "Baked lighting, light probes and reflection probes",
+    "View-dependent metal highlights and smooth interior exposure adaptation",
+    "Worked edges, carrying rings and individually modeled guardian wing feathers",
+    "Detailed bread crust and oil flame appearance",
+    "Unlit teleport indicators remain readable under varied lighting"
+  ],
+  "checks": {
+    "oil_lamps": 7,
+    "bread_loaves": 12,
+    "safe_guided_stops": 6,
+    "furnishing_collision_rejection": "passed",
+    "finite_mesh_vertices": "passed",
+    "lighting_bake": "passed, 1 lightmap"
+  },
+  "on_device_fps": null,
+  "headset_status": "Quest not detected over USB; installation and hardware profiling remain pending",
+  "fidelity": "Improved art revision; not identical to the concept render"
+}

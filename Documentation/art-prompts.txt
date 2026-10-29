@@ -1,0 +1,33 @@
+Generated with the built-in image generator. The texture files are applied to real 3D geometry; preview images are rendered by Unity.
+
+SURFACE ATLAS (superseded by individual material maps)
+Use case: product-mockup
+Asset type: production texture atlas applied to 3D models in a realistic biblical Tabernacle VR scene. Create a square high-resolution texture sheet with exactly FOUR equal square quadrants in a clean 2 by 2 grid, no gutters, no borders, no text or labels. Every quadrant is a flat orthographic macro surface sample filling its entire square, with uniform diffuse illumination, no perspective, no objects, no cast shadows, no vignette, no directional highlights baked in.
+TOP LEFT: real warm 24-karat gold sheet over ancient acacia furniture, subtle tiny hand-hammered marks, fine irregular burnishing and micro scratches, rich muted gold, not yellow plastic, no ornament.
+TOP RIGHT: real ancient bronze, warm brown copper alloy, subtle hammered tooling and restrained aged patina in recesses, no green paint, no large rust spots.
+BOTTOM LEFT: fine ivory handwoven linen, very fine crossing natural threads, tiny fiber irregularities, realistic off-white, no large folds.
+BOTTOM RIGHT: compacted pale desert sand and fine silt, tiny grains with a few very small pebbles, restrained warm beige variation, no big stones or footprints.
+Each quadrant must be suitable as a physically based COLOR texture, flat evenly lit and seamless-looking along its own edges. High material fidelity and fine detail, no illustrations or stylization.
+
+INNER VEIL
+Use case: historical-scene
+Asset type: physically realistic embroidered inner veil COLOR TEXTURE for a 3D Tabernacle of Moses environment, flat unlit front orthographic textile scan, square image.
+Fill the entire image edge to edge with a luxurious but restrained handwoven fine linen veil in deep blue, purple and scarlet yarn, predominantly midnight indigo and plum. Exactly TWO facing winged cherubim embroidered in IVORY linen, muted blue and scarlet thread, large finely detailed feathered wings sheltering the central space. Anatomical depiction is interpretive, elegant ancient Near Eastern winged guardians, not stick figures, not cartoon, not modern cute angels. Finely worked feather embroidery and visible tiny threads. Symmetrical woven geometric border along all four edges, subtle narrow crimson bands, no loud modern stripes, no metallic gold thread. The textile is flat for UV mapping: NO large folds, no draping, no shadows, no poles, no architecture or objects, no text or symbols outside the cherubim motif. Uniform diffuse illumination so lighting can be computed inside a 3D scene. Photographic material detail, no painterly effect. This is a usable surface asset, not a scene illustration.
+
+INDIVIDUAL TEXTURES
+
+Gold
+Asset type: a single square production texture, high resolution, fills the entire frame with only this ONE material. Orthographic surface scan, uniform diffuse lighting, seamless repeat at all edges, no text, no borders. A seamless physically based COLOR texture of fine hand-burnished ancient gold sheet. Smooth worked metal with extremely subtle tiny hammer dimples and hairline scratches. Uniform muted medium warm gold, no crumpled foil, no deep dents, no strong highlights, no shadows, no objects, no decorative engraving.
+
+Bronze
+Asset type: a single square production texture, high resolution, fills the entire frame with only this ONE material. Orthographic surface scan, uniform diffuse lighting, seamless repeat at all edges, no text, no borders. A seamless physically based COLOR texture of ancient bronze metal sheet, warm medium brown copper alloy, finely hammered and gently burnished with very restrained darker patina. No green paint, no rust holes, no giant pits. Even material detail, no highlights or shadows or objects.
+
+Linen
+Asset type: a single square production texture, high resolution, fills the entire frame with only this ONE material. Orthographic surface scan, uniform diffuse lighting, seamless repeat at all edges, no text, no borders. A seamless physically based COLOR texture of fine ivory linen. Very small delicate tightly woven natural threads with subtle organic fiber irregularities. Fine cloth, not burlap, not a chunky knit. Off-white, flat and evenly lit, no folds, no objects, no shadows.
+
+Sand
+Asset type: a single square production texture, high resolution, fills the entire frame with only this ONE material. Orthographic surface scan, uniform diffuse lighting, seamless repeat at all edges, no text, no borders. A seamless physically based COLOR texture of pale compacted desert sand and fine silt. Tiny fine grains with a few very small sparse stones, matte warm beige. Subtle natural variation, no large stones, no tile pattern, no deep footprints, no strong shadows or highlights.
+
+Generated with the built-in image generator and saved as Assets/Resources/Art/Bread.png in the Unity project.
+
+Use case: product-mockup. Asset type: seamless physically based COLOR texture for realistic 3D biblical bread cakes. One square flat orthographic macro surface scan filling the entire image with baked wheat flatbread crust. Warm light golden beige with pale flour dust, very fine porous baked grain, tiny natural air blisters, a few softly toasted brown freckles. Subtle natural material detail, no deep cracks, no brain-like ridges, no large black char, no objects or whole loaf silhouette, no plate, no table, no text, no borders. Even diffuse illumination, no shadows or highlights. Photographic texture, fine detail, tileable edges.
