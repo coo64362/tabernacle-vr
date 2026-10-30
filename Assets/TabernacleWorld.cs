@@ -9,13 +9,15 @@ public partial class TabernacleWorld : MonoBehaviour {
  public const float Cubit=.4572f, Width=50*Cubit, Length=100*Cubit;
  public static TabernacleWorld Instance;
  public Material gold, bronze, sand, linen, blue, purple, scarlet, silver, dark, bread, flame, ink, water;
+ // Added for the scripture-accuracy pass: wood, the three outer coverings, the woven gate/door screen and the ceiling curtains.
+ public Material acacia, goatHair, ramSkin, tahash, gateScreen, curtain;
  public List<Transform> closeDetails=new List<Transform>();
  public readonly Vector3[] stops={new Vector3(0,0,-3),new Vector3(3.6f,0,7.5f),new Vector3(2.5f,0,16),new Vector3(0,0,27.5f),new Vector3(0,0,33.1f),new Vector3(0,0,36.2f)};
  public readonly string[] titles={"THE TABERNACLE", "THE BRONZE ALTAR", "THE WASHING BASIN", "THE HOLY PLACE", "THE INNER VEIL", "THE HOLY OF HOLIES"};
  public readonly string[] notes={"An educational reconstruction\nExodus 25–30; 40\nOne cubit represented as 0.4572 metres", "Five cubits square; three cubits high.\nBronze ash pots, shovels, basins, forks and firepans.\nExodus 27:1–8", "Bronze basin and bronze stand, between altar and tent.\nIts size and profile are not specified.\nExodus 30:18–21; 38:8; 40:30", "Seven oil lamps to the south; twelve loaves to the north.\nGold incense altar before the veil.\nExodus 25:23–40; 26:35; 30:1–6", "Cherubim woven into blue, purple, scarlet and linen.\nFour gold-covered posts with silver bases.\nExodus 26:31–33", "Educational access beyond the veil.\nHistorically, access was restricted: Leviticus 16.\nArk dimensions: Exodus 25:10–22.\nCherubim appearance is interpretive."};
  Transform architecture;
  Font font;
- int breadCount, lampCount, toolCount;
+ int breadCount, lampCount, toolCount, frameCount, socketCount;
  void Awake() {
   Instance=this; font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
   if(prebuilt){if(!GetComponent<QuestExplorer>())gameObject.AddComponent<QuestExplorer>();return;}
@@ -26,6 +28,8 @@ public partial class TabernacleWorld : MonoBehaviour {
   dark=Mat("Dark leather",new Color(.15f,.105f,.07f)); bread=Mat("Bread",new Color(.69f,.43f,.20f));
   flame=Mat("Oil flame",new Color(1,.66f,.14f),0,1); ink=Mat("Ink",new Color(.055f,.075f,.075f),0,1);
   water=Mat("Water",new Color(.12f,.29f,.31f),.6f);
+  acacia=Mat("Acacia",new Color(.60f,.42f,.26f)); goatHair=Mat("Goat hair",new Color(.30f,.24f,.19f)); ramSkin=Mat("Ram skins",new Color(.75f,.28f,.22f));
+  tahash=Mat("Tahash",new Color(.50f,.46f,.42f)); gateScreen=Mat("Gate screen",Color.white); curtain=Mat("Curtain",Color.white);
   SetRealisticEnvironment();
   architecture=new GameObject("Architecture — batched by material").transform; architecture.SetParent(transform);
   BuildLandscape(); BuildCourtyard(); BuildTent();
@@ -34,8 +38,9 @@ public partial class TabernacleWorld : MonoBehaviour {
   // Batch each furnishing separately so close-range decoration can still disappear at distance.
   for(int i=1;i<transform.childCount;i++) {var t=transform.GetChild(i);if(t.name.StartsWith("Furnishing"))Batch(t);}
   BuildWayfinding();
-  if(lampCount!=7||breadCount!=12||toolCount!=5)throw new Exception("Biblical inventory validation failed");
-  Debug.Log($"TABERNACLE_INVENTORY lamps={lampCount} loaves={breadCount} altarToolTypes={toolCount} cubit={Cubit}");
+  // Ex 26:15-25: 20 + 20 + 8 frames; Ex 26:19-21,25 and 38:27: two silver sockets under each frame (96).
+  if(lampCount!=7||breadCount!=12||toolCount!=5||frameCount!=48||socketCount!=96)throw new Exception("Biblical inventory validation failed");
+  Debug.Log($"TABERNACLE_INVENTORY lamps={lampCount} loaves={breadCount} altarToolTypes={toolCount} frames={frameCount} frameSockets={socketCount} cubit={Cubit}");
   gameObject.AddComponent<QuestExplorer>();
  }
  Material Mat(string n,Color c,float metal=0,float glow=0)=>PhysicalMaterial(n,c,metal,glow);
@@ -67,19 +72,28 @@ public partial class TabernacleWorld : MonoBehaviour {
  void BuildLandscape(){
   BuildDesert();
  }
- void Post(Transform t,Vector3 p,float h,Material shaft,Material foot){Cyl("Post",t,p+Vector3.up*h/2,.045f,h,shaft);Cyl("Socket",t,p+Vector3.up*.055f,.105f,.11f,foot);Ball("Post hook",t,p+Vector3.up*(h-.03f),Vector3.one*.10f,shaft==gold?gold:silver);}
+ // Court pillars: bronze sockets, silver hooks and silver-filleted capitals (Ex 27:10-11, 38:10-12, 38:17). The wood shaft is an inference:
+ // the text names the bases, hooks, bands and capital overlay but not the shaft material. Tent posts pass shaft=gold and no fillet.
+ void Post(Transform t,Vector3 p,float h,Material shaft,Material foot,bool silverFillets=false){
+  Cyl("Post",t,p+Vector3.up*h/2,.045f,h,shaft);Cyl("Socket",t,p+Vector3.up*.055f,.105f,.11f,foot);Ball("Post hook",t,p+Vector3.up*(h-.03f),Vector3.one*.10f,shaft==gold?gold:silver);
+  if(silverFillets){Torus("Post silver fillet",t,p+Vector3.up*(h-.14f),.052f,.012f,silver,10);Torus("Post silver capital band",t,p+Vector3.up*(h-.02f),.052f,.012f,silver,10);}
+ }
  void BuildCourtyard(){
-  float w=Width/2,h=5*Cubit;
-  Fabric("South linen enclosure",architecture,new Vector3(-w,h/2,Length/2),Length,h,linen,true,90);
-  Fabric("North linen enclosure",architecture,new Vector3(w,h/2,Length/2),Length,h,linen,true,90);
-  Fabric("West linen enclosure",architecture,new Vector3(0,h/2,Length),Width,h,linen,true);
+  float w=Width/2,h=5*Cubit,span=5*Cubit;
+  // Hangings sag a little between pillars, as cloth hung from hooks does. Normals face the walkable interior.
+  Fabric("South linen enclosure",architecture,new Vector3(-w,h/2,Length/2),Length,h,linen,true,270,span);
+  Fabric("North linen enclosure",architecture,new Vector3(w,h/2,Length/2),Length,h,linen,true,90,span);
+  Fabric("West linen enclosure",architecture,new Vector3(0,h/2,Length),Width,h,linen,true,0,Width/9);
   float gate=20*Cubit;
   foreach(int sign in new[]{-1,1})Fabric("East linen enclosure",architecture,new Vector3(sign*(w+gate/2)/2,h/2,0),w-gate/2,h,linen,true);
-  // Twenty longitudinal posts per side, ten across each end. Shared corners counted once.
-  for(int i=0;i<20;i++){Post(architecture,new Vector3(-w,0,i*Length/20),h,bronze,bronze);Post(architecture,new Vector3(w,0,(i+1)*Length/20),h,bronze,bronze);}
-  for(int i=0;i<10;i++){Post(architecture,new Vector3(-w+(i+1)*Width/10,0,0),h,bronze,bronze);Post(architecture,new Vector3(-w+i*Width/10,0,Length),h,bronze,bronze);}
-  // Parted entrance screen leaves a safe, visible walking route.
-  foreach(int s in new[]{-1,1})Screen(architecture,new Vector3(s*3.6f,h/2,-.025f),1.7f,h,false);
+  // Sixty pillars in all (Ex 27:9-16): 20 per long side, 10 on the west, and on the east 3 per 15-cubit wing plus 4 for the 20-cubit gate.
+  // Corner pillars belong to the north and south rows (z = 0..95 cubits) and to the west row (both ends).
+  for(int i=0;i<20;i++){Post(architecture,new Vector3(-w,0,i*Length/20),h,acacia,bronze,true);Post(architecture,new Vector3(w,0,i*Length/20),h,acacia,bronze,true);}
+  for(int i=0;i<10;i++)Post(architecture,new Vector3(-w+i*Width/9,0,Length),h,acacia,bronze,true);
+  foreach(int s in new[]{-1,1})foreach(float c in new[]{21.5f,17f,12.5f})Post(architecture,new Vector3(s*c*Cubit,0,0),h,acacia,bronze,true);
+  foreach(float c in new[]{-10f,-3.33f,3.33f,10f})Post(architecture,new Vector3(c*Cubit,0,0),h,acacia,bronze,true);
+  // The 20-cubit gate screen of blue, purple and scarlet (Ex 27:16) is drawn back in the middle so visitors have a clear way in.
+  foreach(int s in new[]{-1,1})Screen(architecture,new Vector3(s*2.9f,h/2,-.025f),3.3f,h,false);
   for(int i=0;i<16;i++){float z=i*Length/15;Rod("Guy rope",architecture,new Vector3(-w,h-.1f,z),new Vector3(-w-.8f,.02f,z+.2f),.009f,dark);Rod("Guy rope",architecture,new Vector3(w,h-.1f,z),new Vector3(w+.8f,.02f,z+.2f),.009f,dark);}
  }
  void Screen(Transform t,Vector3 p,float w,float h,bool cherub){
@@ -87,29 +101,51 @@ public partial class TabernacleWorld : MonoBehaviour {
  }
  void BuildTent(){
   float w=10*Cubit,h=10*Cubit,front=26,back=front+30*Cubit,veil=front+20*Cubit;
+  // 48 frames, each 10 x 1.5 cubits (Ex 26:15-25): 20 south, 20 north, and 8 on the west (six plus two corner frames).
   for(int i=0;i<20;i++)foreach(int s in new[]{-1,1}){
-   float z=front+(i+.5f)*1.5f*Cubit;Box("Gold-covered acacia frame",architecture,new Vector3(s*w/2,h/2,z),new Vector3(.12f,h,1.5f*Cubit-.012f),gold,true);
-   for(int j=0;j<2;j++)Box("Silver frame socket",architecture,new Vector3(s*w/2,.06f,z+(j==0?-.19f:.19f)),new Vector3(.20f,.12f,.20f),silver);
+   float z=front+(i+.5f)*1.5f*Cubit;Box("Gold-covered acacia frame",architecture,new Vector3(s*w/2,h/2,z),new Vector3(.12f,h,1.5f*Cubit-.012f),gold,true);frameCount++;
+   for(int j=0;j<2;j++){Box("Silver frame socket",architecture,new Vector3(s*w/2,.06f,z+(j==0?-.19f:.19f)),new Vector3(.20f,.12f,.20f),silver);socketCount++;}
   }
-  Box("Rear gold wall",architecture,new Vector3(0,h/2,back),new Vector3(w,h,.14f),gold,true);
-  Box("Inner linen roof",architecture,new Vector3(0,h,front+15*Cubit),new Vector3(w,.025f,30*Cubit),purple);
-  Box("Goat hair and skin roof covering",architecture,new Vector3(0,h+.09f,front+15*Cubit),new Vector3(w+.5f,.12f,30*Cubit+.5f),dark);
-  for(int i=0;i<9;i++){float z=front+.7f+i*1.5f;Box("Ceiling embroidered stripe",architecture,new Vector3(0,h-.024f,z),new Vector3(w,.008f,.045f),gold);}
-  // Five entrance posts: gold over acacia, bronze sockets. Open central screen for exploration.
+  for(int i=0;i<6;i++)RearFrame((i-2.5f)*1.5f*Cubit,1.5f*Cubit,back,h);
+  foreach(int s in new[]{-1,1})RearFrame(s*4.75f*Cubit,.5f*Cubit,back,h);
+  // Ceiling: ten 4-cubit linen curtains with cherubim (Ex 26:1-2), shown over the 30-cubit tent (7.5 curtains). The last one is half visible.
+  for(int i=0;i<8;i++){float len=(i<7?4f:2f)*Cubit;CeilingPanel("Inner linen curtain "+(i+1),architecture,new Vector3(0,h-.012f,front+(i*4*Cubit)+len/2),w,len,curtain);}
+  // Goat hair, red ram skins and tahash skins lie above, each slightly larger (Ex 26:7-14). The sides and rear are dressed in DressTent.
+  Box("Goat hair covering",architecture,new Vector3(0,h+.035f,front+15*Cubit+.1f),new Vector3(w+.46f,.05f,30*Cubit+.46f),goatHair);
+  Box("Ram skin covering, dyed red",architecture,new Vector3(0,h+.085f,front+15*Cubit+.12f),new Vector3(w+.52f,.05f,30*Cubit+.52f),ramSkin);
+  Box("Tahash skin covering",architecture,new Vector3(0,h+.135f,front+15*Cubit+.14f),new Vector3(w+.58f,.05f,30*Cubit+.58f),tahash);
+  // Five entrance posts: gold over acacia, bronze sockets, gold hooks (Ex 26:36-37). Open central screen for exploration.
   for(int i=0;i<5;i++){float x=-w/2+i*w/4;Post(architecture,new Vector3(x,0,front),h,gold,bronze);}
   foreach(int s in new[]{-1,1})Screen(architecture,new Vector3(s*w*.375f,h/2,front-.02f),w*.22f,h,false);
   DressTent();
   Screen(architecture,new Vector3(0,h/2,veil),w,h,true);
   for(int i=0;i<4;i++){float x=-w/2+i*w/3;Cyl("Veil gold post",architecture,new Vector3(x,h/2,veil-.10f),.055f,h,gold);Box("Veil silver socket",architecture,new Vector3(x,.07f,veil-.10f),new Vector3(.19f,.14f,.19f),silver);}
+  // Fifty gold clasps couple the two sets of five curtains at the 20-cubit line, and the veil hangs beneath them (Ex 26:6, 26:33).
+  for(int i=0;i<50;i++)Box("Gold clasp",architecture,new Vector3(-w/2+(i+.5f)*w/50,h-.04f,veil-.02f),new Vector3(.04f,.05f,.04f),gold);
+ }
+ void RearFrame(float x,float width,float back,float h){
+  Box("Gold-covered acacia frame (west)",architecture,new Vector3(x,h/2,back),new Vector3(width-.012f,h,.14f),gold,true);frameCount++;
+  float socket=Mathf.Min(.20f,width*.42f);
+  for(int j=0;j<2;j++){Box("Silver frame socket",architecture,new Vector3(x+(j==0?-1:1)*width*.25f,.06f,back),new Vector3(socket,.12f,socket),silver);socketCount++;}
  }
  void BuildAltar(){
   var t=Group("Furnishing — bronze altar",new Vector3(0,0,8));float w=5*Cubit,h=3*Cubit;
   foreach(int s in new[]{-1,1}){Box("Hollow altar side",t,new Vector3(s*w/2,h/2,0),new Vector3(.065f,h,w),bronze,true);Box("Hollow altar side",t,new Vector3(0,h/2,s*w/2),new Vector3(w,h,.065f),bronze,true);}
   Box("Altar exclusion volume",t,new Vector3(0,h/2,0),new Vector3(w,h,w),bronze,true).GetComponent<Renderer>().enabled=false;
-  foreach(int x in new[]{-1,1})foreach(int z in new[]{-1,1}){var g=Box("Altar horn",t,new Vector3(x*(w/2-.08f),h+.12f,z*(w/2-.08f)),new Vector3(.11f,.28f,.11f),bronze);g.transform.localRotation=Quaternion.Euler(z*12,0,-x*12);}
+  foreach(int x in new[]{-1,1})foreach(int z in new[]{-1,1}){var g=Box("Altar horn",t,new Vector3(x*(w/2-.08f),h+.15f,z*(w/2-.08f)),new Vector3(.13f,.36f,.13f),bronze);g.transform.localRotation=Quaternion.Euler(z*12,0,-x*12);}
   // Network at mid-height; precise network interpretation is documented.
   for(int i=0;i<12;i++){float v=-w/2+i*w/11;Rod("Bronze network",t,new Vector3(v,h/2,-w/2),new Vector3(v,h/2,w/2),.012f,bronze);Rod("Bronze network",t,new Vector3(-w/2,h/2,v),new Vector3(w/2,h/2,v),.012f,bronze);}
-  for(int s=-1;s<=1;s+=2){Rod("Altar carrying pole",t,new Vector3(s*(w/2+.12f),.9f,-1.7f),new Vector3(s*(w/2+.12f),.9f,1.7f),.035f,bronze);}
+  // A ledge (karkov) runs around the altar at half height; the network reaches to it (Ex 27:5).
+  foreach(int s in new[]{-1,1}){Box("Altar ledge",t,new Vector3(0,h/2,s*(w/2+.045f)),new Vector3(w+.18f,.045f,.09f),bronze);Box("Altar ledge",t,new Vector3(s*(w/2+.045f),h/2,0),new Vector3(.09f,.045f,w+.18f),bronze);}
+  // Poles of acacia overlaid with bronze run through bronze rings below the ledge on two sides (Ex 27:4, 27:6-7).
+  for(int s=-1;s<=1;s+=2){
+   Rod("Altar carrying pole",t,new Vector3(s*(w/2+.12f),.52f,-1.7f),new Vector3(s*(w/2+.12f),.52f,1.7f),.035f,bronze);
+   foreach(float zz in new[]{-1.0f,1.0f}){int index=t.childCount;Torus("Altar bronze ring",t,new Vector3(s*(w/2+.12f),.52f,zz),.05f,.012f,bronze,12);t.GetChild(index).localRotation=Quaternion.Euler(90,0,0);Box("Altar ring bracket",t,new Vector3(s*(w/2+.06f),.52f,zz),new Vector3(.12f,.05f,.05f),bronze);}
+  }
+  // The fire on the altar is kept burning continually (Lev 6:12-13): wood on the network, with flame.
+  for(int i=0;i<5;i++)Box("Altar wood",t,new Vector3(-.6f+i*.3f,h/2+.07f,0),new Vector3(.12f,.12f,1.2f+(i%2)*.4f),dark);
+  for(int i=0;i<7;i++){float a=i*Mathf.PI*2/7,r=(i%2==0?.45f:.22f);Ball("Altar flame",t,new Vector3(Mathf.Cos(a)*r,h/2+.36f,Mathf.Sin(a)*r),new Vector3(.20f,.46f,.20f),flame);}
+  AddOilLight(t,new Vector3(0,h/2+.55f,0));
   BuildTools(new Vector3(-2.2f,0,8));
  }
  void BuildTools(Vector3 p){

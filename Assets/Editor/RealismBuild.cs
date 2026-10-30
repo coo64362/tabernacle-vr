@@ -17,8 +17,15 @@ public static class RealismBuild {
  public static void PrepareBuildAndReview(){Prepare(true);}
  static void Prepare(bool build){
   buildAfter=build;
-  foreach(var path in new[]{"Assets/Resources/Art/Gold.png","Assets/Resources/Art/Bronze.png","Assets/Resources/Art/Linen.png","Assets/Resources/Art/Sand.png","Assets/Resources/Art/InnerVeil.png"}){
-   var importer=AssetImporter.GetAtPath(path) as TextureImporter;if(importer==null)continue;importer.maxTextureSize=2048;importer.mipmapEnabled=true;importer.anisoLevel=8;importer.npotScale=TextureImporterNPOTScale.None;importer.wrapMode=path.Contains("InnerVeil")?TextureWrapMode.Clamp:TextureWrapMode.Repeat;importer.textureCompression=TextureImporterCompression.CompressedHQ;importer.SaveAndReimport();
+  foreach(var path in new[]{"Assets/Resources/Art/Gold.png","Assets/Resources/Art/Bronze.png","Assets/Resources/Art/Linen.png","Assets/Resources/Art/Sand.png","Assets/Resources/Art/InnerVeil.png","Assets/Resources/Art/Acacia.png","Assets/Resources/Art/GoatHair.png","Assets/Resources/Art/RamSkin.png","Assets/Resources/Art/Tahash.png","Assets/Resources/Art/GateScreen.png","Assets/Resources/Art/Curtain.png"}){
+   var importer=AssetImporter.GetAtPath(path) as TextureImporter;if(importer==null)continue;importer.maxTextureSize=2048;importer.mipmapEnabled=true;
+   // Quest 2: anisotropy 4 (8 is costly on the mobile GPU, and the shader reads each map three times), and ASTC on the headset.
+   // Tiling surfaces drop to 1024 px with ASTC 6x6; the two cherubim textures keep 2048 px and ASTC 4x4 for embroidery detail.
+   importer.anisoLevel=4;importer.npotScale=TextureImporterNPOTScale.None;
+   importer.wrapMode=(path.Contains("InnerVeil")||path.Contains("Curtain"))?TextureWrapMode.Clamp:TextureWrapMode.Repeat;importer.textureCompression=TextureImporterCompression.CompressedHQ;
+   bool detail=path.Contains("InnerVeil")||path.Contains("Curtain");
+   importer.SetPlatformTextureSettings(new TextureImporterPlatformSettings{name="Android",overridden=true,maxTextureSize=detail?2048:1024,format=detail?TextureImporterFormat.ASTC_4x4:TextureImporterFormat.ASTC_6x6,textureCompression=TextureImporterCompression.CompressedHQ,compressionQuality=50});
+   importer.SaveAndReimport();
   }
   if(AssetDatabase.IsValidFolder(Generated))AssetDatabase.DeleteAsset(Generated);Directory.CreateDirectory(Generated);AssetDatabase.Refresh();
   var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
@@ -87,6 +94,8 @@ public static class RealismBuild {
  }
  static void Validate(TabernacleWorld world){
   var all=world.GetComponentsInChildren<Transform>();
+  Check(all.Count(t=>t.name.StartsWith("Gold-covered acacia frame"))==48,"forty-eight tent frames");Check(all.Count(t=>t.name=="Silver frame socket")==96,"ninety-six silver frame sockets");
+  Check(all.Count(t=>t.name=="Post")==65,"sixty court pillars plus five tent entrance pillars");Check(all.Count(t=>t.name=="Gold clasp")==50,"fifty gold clasps");
   Check(all.Count(t=>t.name.StartsWith("Bread loaf "))==12,"twelve loaves");Check(all.Count(t=>t.name.StartsWith("Oil lamp ")&&t.name.EndsWith("of seven"))==7,"seven oil lamps");
   foreach(var stop in world.stops)Check(world.CanStand(stop),"safe tour stop "+stop);
   foreach(var p in new[]{new Vector3(0,0,8),new Vector3(0,0,16.5f),new Vector3(1.5f,0,30)})Check(!world.CanStand(p),"blocked furnishing "+p);

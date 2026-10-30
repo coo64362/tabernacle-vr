@@ -11,6 +11,10 @@ public static class PrototypeReview {
   EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
   var root=new GameObject("Review environment");var world=root.AddComponent<TabernacleWorld>();root.SendMessage("Awake");Physics.SyncTransforms();
   var objects=root.GetComponentsInChildren<Transform>();
+  Require(objects.Count(t=>t.name.StartsWith("Gold-covered acacia frame"))==48,"Forty-eight tent frames (Ex 26:15-25)");
+  Require(objects.Count(t=>t.name=="Silver frame socket")==96,"Ninety-six silver frame sockets (Ex 26:19-25)");
+  Require(objects.Count(t=>t.name=="Post")==65,"Sixty court pillars plus five tent entrance pillars");
+  Require(objects.Count(t=>t.name=="Gold clasp")==50,"Fifty gold clasps (Ex 26:6)");
   Require(objects.Count(t=>t.name.StartsWith("Bread loaf "))==12,"Exactly twelve bread loaves");
   Require(objects.Count(t=>t.name.StartsWith("Oil lamp ")&&t.name.EndsWith("of seven"))==7,"Exactly seven oil lamps");
   foreach(var name in new[]{"Ash pot","Shovel blade","Blood basin","Meat fork shaft","Firepan","Gold plate beneath bread","Gold cup","Gold pouring bowl","Gold pitcher","Gold wick tray"})Require(objects.Any(t=>t.name==name),"Inventory: "+name);

@@ -18,6 +18,12 @@ public partial class TabernacleWorld {
   else if(name=="Silver"){m.mainTexture=Texture2D.whiteTexture;m.color=new Color(.72f,.76f,.80f);m.SetVector("_AtlasRect",new Vector4(1,1,0,0));}
   else if(name=="Sand"){m.mainTexture=Resources.Load<Texture2D>("Art/Sand");m.color=new Color(.90f,.86f,.78f);m.SetVector("_AtlasRect",new Vector4(1,1,0,0));m.SetFloat("_WorldScale",.45f);m.SetFloat("_Glossiness",.05f);}
   else if(name=="Bread"){m.color=Color.white;m.mainTexture=Resources.Load<Texture2D>("Art/Bread");m.SetVector("_AtlasRect",new Vector4(1,1,0,0));m.SetFloat("_Glossiness",.08f);m.SetFloat("_Relief",.8f);}
+  else if(name=="Acacia"){m.mainTexture=Resources.Load<Texture2D>("Art/Acacia");m.color=Color.white;m.SetFloat("_Glossiness",.14f);m.SetFloat("_Relief",1.0f);}
+  else if(name=="Goat hair"){m.mainTexture=Resources.Load<Texture2D>("Art/GoatHair");m.color=Color.white;m.mainTextureScale=Vector2.one*2;m.SetFloat("_Glossiness",.04f);m.SetFloat("_Relief",1.4f);}
+  else if(name=="Ram skins"){m.mainTexture=Resources.Load<Texture2D>("Art/RamSkin");m.color=Color.white;m.mainTextureScale=Vector2.one*2;m.SetFloat("_Glossiness",.18f);m.SetFloat("_Relief",1.0f);}
+  else if(name=="Tahash"){m.mainTexture=Resources.Load<Texture2D>("Art/Tahash");m.color=Color.white;m.mainTextureScale=Vector2.one*2;m.SetFloat("_Glossiness",.22f);m.SetFloat("_Relief",1.0f);}
+  else if(name=="Gate screen"){m.mainTexture=Resources.Load<Texture2D>("Art/GateScreen");m.color=Color.white;m.SetFloat("_Glossiness",.14f);m.SetFloat("_Relief",1.2f);}
+  else if(name=="Curtain"){m.mainTexture=Resources.Load<Texture2D>("Art/Curtain");m.color=Color.white;m.SetFloat("_Glossiness",.14f);m.SetFloat("_Relief",1.2f);}
   else {if(name=="Linen")m.color=new Color(.98f,.97f,.93f);m.mainTextureScale=Vector2.one*10;m.SetFloat("_Glossiness",.12f);}
   return m;
  }
@@ -55,20 +61,47 @@ public partial class TabernacleWorld {
   var mesh=new Mesh{name="Softly worked edges — "+name};mesh.SetVertices(vertices);mesh.SetNormals(normals);mesh.SetUVs(0,uvs);mesh.SetTriangles(indices,0);mesh.RecalculateBounds();g.AddComponent<MeshFilter>().sharedMesh=mesh;g.AddComponent<MeshRenderer>().sharedMaterial=m;
   if(collision){g.AddComponent<BoxCollider>().size=size;g.layer=8;}return g;
  }
- void Fabric(string name,Transform parent,Vector3 center,float width,float height,Material material,bool collision=true,float yaw=0){
+ // sagSpan>0: the top edge hangs in shallow scallops between pillars spaced sagSpan apart. density: mesh cells per metre (coverings use fewer).
+ void Fabric(string name,Transform parent,Vector3 center,float width,float height,Material material,bool collision=true,float yaw=0,float sagSpan=0,float density=24){
   var g=new GameObject(name);g.transform.SetParent(parent,false);g.transform.localPosition=center;g.transform.localRotation=Quaternion.Euler(0,yaw,0);
-  int nx=Mathf.Clamp(Mathf.CeilToInt(width*24),24,512),ny=12;var verts=new Vector3[(nx+1)*(ny+1)];var uv=new Vector2[verts.Length];var tris=new List<int>();
-  for(int y=0;y<=ny;y++)for(int x=0;x<=nx;x++){float u=(float)x/nx,v=(float)y/ny;float fold=Mathf.Sin(u*width*2*Mathf.PI/.32f)*.027f+Mathf.Sin(u*width*12.7f)*.010f;int k=y*(nx+1)+x;verts[k]=new Vector3((u-.5f)*width,(v-.5f)*height+Mathf.Sin(u*width*6)*.012f*(1-v),fold);uv[k]=material==veilFabric?new Vector2(u,v):new Vector2(u*width/1.8f,v*height/1.8f);if(x<nx&&y<ny){int b=k+nx+1;tris.AddRange(new[]{k,b,k+1,k+1,b,b+1});}}
+  int nx=Mathf.Clamp(Mathf.CeilToInt(width*density),8,512),ny=12;var verts=new Vector3[(nx+1)*(ny+1)];var uv=new Vector2[verts.Length];var tris=new List<int>();
+  for(int y=0;y<=ny;y++)for(int x=0;x<=nx;x++){
+   float u=(float)x/nx,v=(float)y/ny;
+   // Broad, irregular folds rather than a regular corrugation; a faint fine ripple rides on top.
+   float fold=Mathf.Sin(u*width*2*Mathf.PI/.55f)*.020f*(.7f+.3f*Mathf.Sin(u*width*.9f+1.7f))+Mathf.Sin(u*width*12.7f+v*3)*.006f;
+   float sag=sagSpan>0?Mathf.Sin(((u*width)%sagSpan)/sagSpan*Mathf.PI)*.05f*v:0;
+   int k=y*(nx+1)+x;verts[k]=new Vector3((u-.5f)*width,(v-.5f)*height+Mathf.Sin(u*width*6)*.012f*(1-v)-sag,fold);
+   uv[k]=material==veilFabric?new Vector2(u,v):new Vector2(u*width/1.8f,v*height/1.8f);
+   if(x<nx&&y<ny){int b=k+nx+1;tris.AddRange(new[]{k,b,k+1,k+1,b,b+1});}
+  }
   var mesh=new Mesh{name=name+" cloth folds",indexFormat=IndexFormat.UInt32};mesh.vertices=verts;mesh.uv=uv;mesh.triangles=tris.ToArray();mesh.RecalculateNormals();mesh.RecalculateBounds();g.AddComponent<MeshFilter>().sharedMesh=mesh;var r=g.AddComponent<MeshRenderer>();r.sharedMaterial=material;r.shadowCastingMode=ShadowCastingMode.TwoSided;
   if(collision){g.AddComponent<BoxCollider>().size=new Vector3(width,height,.12f);g.layer=8;}
  }
  void DrapedScreen(Transform t,Vector3 p,float w,float h,bool cherub){
-  Fabric(cherub?"Inner veil":"Entrance screen",t,p,w,h,cherub?veilFabric:purple);
+  // Gate and door screens: blue, purple and scarlet yarn with fine twisted linen, embroidered (Ex 26:36, 27:16). No cherubim are specified for them.
+  Fabric(cherub?"Inner veil":"Entrance screen",t,p,w,h,cherub?veilFabric:(gateScreen!=null?gateScreen:purple));
   if(!cherub)foreach(int s in new[]{-1,1}){Box("Scarlet woven border",t,p+new Vector3(s*(w/2-.045f),0,-.04f),new Vector3(.045f,h,.009f),scarlet);Box("Linen woven border",t,p+new Vector3(s*(w/2-.075f),0,-.041f),new Vector3(.012f,h,.008f),linen);}
  }
+ // Coverings, innermost to outermost (Ex 26:7-14): goat hair, ram skins dyed red, then tahash skins. Each hangs a little shorter than the one beneath,
+ // so the hems show in order. How far each hung is not stated; the heights here are a modelling choice. The linen curtains with cherubim are the ceiling.
  void DressTent(){float w=10*Cubit,h=10*Cubit,front=26,length=30*Cubit;
-  foreach(int s in new[]{-1,1})Fabric("Outer layered skin covering",architecture,new Vector3(s*(w/2+.14f),h/2,front+length/2),length+.2f,h+.08f,dark,false,90);
-  for(int i=0;i<3;i++){var before=architecture.childCount;Fabric("Inner linen cherubim covering",architecture,new Vector3(0,h-.045f,front+(i+.5f)*10*Cubit),w,w,veilFabric,false);architecture.GetChild(before).localRotation=Quaternion.Euler(90,0,0);}
+  Material[] layer={goatHair,ramSkin,tahash};string[] label={"Goat hair","Ram skin","Tahash skin"};float[] hem={0f,.45f,.90f};
+  for(int i=0;i<3;i++){
+   float bottom=hem[i],top=h+.04f+.05f*i,height=top-bottom,mid=bottom+height/2,x=w/2+.20f+.03f*i;
+   Fabric(label[i]+" covering, south side",architecture,new Vector3(-x,mid,front+length/2+.1f),length+.4f+.06f*i,height,layer[i],false,90,0,6);
+   Fabric(label[i]+" covering, north side",architecture,new Vector3(x,mid,front+length/2+.1f),length+.4f+.06f*i,height,layer[i],false,270,0,6);
+   Fabric(label[i]+" covering, west end",architecture,new Vector3(0,mid,front+length+.22f+.03f*i),w+.44f+.06f*i,height,layer[i],false,180,0,6);
+  }
+ }
+ // A flat horizontal panel facing down, with the image upright for a visitor looking west: u runs north (+x), v runs west (+z).
+ void CeilingPanel(string name,Transform parent,Vector3 center,float sizeX,float sizeZ,Material material){
+  var g=new GameObject(name);g.transform.SetParent(parent,false);g.transform.localPosition=center;
+  var mesh=new Mesh{name=name};
+  mesh.vertices=new[]{new Vector3(-sizeX/2,0,-sizeZ/2),new Vector3(-sizeX/2,0,sizeZ/2),new Vector3(sizeX/2,0,sizeZ/2),new Vector3(sizeX/2,0,-sizeZ/2)};
+  mesh.normals=new[]{Vector3.down,Vector3.down,Vector3.down,Vector3.down};
+  mesh.uv=new[]{new Vector2(0,0),new Vector2(0,1),new Vector2(1,1),new Vector2(1,0)};
+  mesh.triangles=new[]{0,1,2,0,2,3};mesh.RecalculateBounds();
+  g.AddComponent<MeshFilter>().sharedMesh=mesh;var r=g.AddComponent<MeshRenderer>();r.sharedMaterial=material;r.shadowCastingMode=ShadowCastingMode.TwoSided;
  }
  void BuildDesert(){
   var floor=Box("Desert collision ground",architecture,new Vector3(0,-.15f,20),new Vector3(240,.3f,240),sand,true);floor.layer=9;floor.GetComponent<Renderer>().enabled=false;

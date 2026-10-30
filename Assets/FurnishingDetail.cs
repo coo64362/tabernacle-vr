@@ -20,6 +20,10 @@ public partial class TabernacleWorld {
  }
  // A clearly interpretive winged guardian. Counts, facing and sheltering wings follow Exodus 25.
  void Guardian(Transform t,Vector3 origin,int side){
+  // Drop-in slot for a properly sculpted cherub: put a prefab at Assets/Resources/Models/Cherub.prefab, authored facing +X with its feet at the origin,
+  // about 0.45 m tall, gold material, under roughly 6,000 triangles. One copy is placed per end, turned to face the other (Ex 25:18-20).
+  var sculpted=Resources.Load<GameObject>("Models/Cherub");
+  if(sculpted!=null){var copy=Instantiate(sculpted,t);copy.name="Cherub — sculpted model";copy.transform.localPosition=origin;copy.transform.localRotation=Quaternion.Euler(0,side>0?180f:0f,0);return;}
   Ball("Cherub body — interpretive sculpture",t,origin+new Vector3(0,.12f,0),new Vector3(.27f,.15f,.14f),gold);
   Ball("Sculpted cherub haunch",t,origin+new Vector3(side*.10f,.105f,0),new Vector3(.12f,.16f,.14f),gold);
   Ball("Cherub face toward cover",t,origin+new Vector3(-side*.105f,.235f,0),new Vector3(.080f,.105f,.075f),gold);
