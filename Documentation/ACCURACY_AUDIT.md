@@ -2,6 +2,8 @@
 
 Reviewed against the v0.2 source (`TabernacleWorld.cs`, `FurnishingDetail.cs`, `WorldRealism.cs`), the shaders, the texture import settings and the preview renders in `Documentation/Previews`.
 
+**Saved scene is stale:** `Assets/TabernacleRealistic.unity` is a pre-baked scene (`prebuilt: 1`), so the app does not run the generator. None of the geometry changes in this branch show up in a build until `RealismBuild.PrepareAndReview` regenerates the scene and lighting. That step has not been run.
+
 **Not verified:** Unity was not available when this was written. The C# was syntax-checked only (not compiled), and the new textures were checked as images, not in the engine. Re-run the realism build and read the `REALISM_CHECK_*` log lines before trusting any of it.
 
 Key: ✅ matches the text · ⚠ the text doesn't say, so it's a modelling choice · ❌ was wrong in v0.2, changed in this branch · 🔎 not changed, needs checking in Unity or on the headset
@@ -34,10 +36,10 @@ Key: ✅ matches the text · ⚠ the text doesn't say, so it's a modelling choic
 | Item | What the text says | v0.2 | Status |
 |---|---|---|---|
 | Size | 30 × 10 × 10 cubits, 20-cubit Holy Place and a 10-cubit cube Holy of Holies | correct, veil at 20 cubits | ✅ |
-| Frames | 48 frames, 10 × 1.5 cubits: 20 + 20 + 8 (6 plus 2 corner) | 40 frames and one solid gold slab for the west wall | ❌ 48 frames |
+| Frames | 48 frames, 10 × 1.5 cubits each (26:16): 20 + 20 + 8 (6 rear plus 2 corner, 26:22-25) | 40 frames and one solid gold slab for the west wall | ❌ 48 frames. Corner frames are full 1.5-cubit width (an earlier commit wrongly shrank them to ½ cubit). The text says only that they are "double beneath, and together at the top" (26:24), so they are set in a second layer behind the rear wall, doubled against the end frames. ⚠ How corner frames really met the side walls is not stated; this is one reading. |
 | Silver sockets | 2 under each frame (96), plus 4 under the veil pillars (100 in all, 38:27) | 80 + 4 | ❌ 96 + 4 |
 | Crossbars and gold rings (26:26-29) | five bars per side | not modelled | ⚠ not added: the coverings hide them, so they'd cost triangles for nothing. Add them if visitors can ever walk around the outside. |
-| Ceiling | 10 linen curtains, 4 cubits wide, blue/purple/scarlet with cherubim (26:1-6) | one plain purple slab plus three patches of the veil art | ❌ eight panels (7½ curtains' worth) using your veil embroidery, so the cherubim match the veil |
+| Linen curtains | 10 curtains of 28 × 4 cubits (26:1-2), blue/purple/scarlet with cherubim, coupled in two sets of five (26:3) | one plain purple slab plus three patches of the veil art | ❌ all 10 modelled: 30 cubits overhead (cherubim art from your veil), 9-cubit drops down each side, and the last 10 cubits hanging down the back. ⚠ The text gives no placement for the extra 10 cubits; hanging them down the back is the usual reading. The 28-cubit width is used fully on the sides but only 10 cubits wide on the rear drop. The drops are outside the frames, so they are hidden from inside and from outside. |
 | Clasps | 50 gold clasps join the two sets of five curtains (26:6); the veil hangs beneath them (26:33) | none | ❌ 50 gold clasps at the 20-cubit line |
 | Coverings | goat hair, then ram skins dyed red, then tahash skins on top (26:7-14) | one dark brown slab | ❌ three separate layers, each with its own texture, hems stepped so all three show |
 | Entrance | 5 pillars, bronze bases, gold hooks, an embroidered screen with no cherubim (26:36-37) | 5 pillars ✅, plain purple screen | ❌ screen now uses the striped weave |

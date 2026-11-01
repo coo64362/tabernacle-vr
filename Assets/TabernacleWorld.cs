@@ -18,6 +18,7 @@ public partial class TabernacleWorld : MonoBehaviour {
  Transform architecture;
  Font font;
  int breadCount, lampCount, toolCount, frameCount, socketCount;
+ float curtainCubits;
  void Awake() {
   Instance=this; font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
   if(prebuilt){if(!GetComponent<QuestExplorer>())gameObject.AddComponent<QuestExplorer>();return;}
@@ -39,7 +40,7 @@ public partial class TabernacleWorld : MonoBehaviour {
   for(int i=1;i<transform.childCount;i++) {var t=transform.GetChild(i);if(t.name.StartsWith("Furnishing"))Batch(t);}
   BuildWayfinding();
   // Ex 26:15-25: 20 + 20 + 8 frames; Ex 26:19-21,25 and 38:27: two silver sockets under each frame (96).
-  if(lampCount!=7||breadCount!=12||toolCount!=5||frameCount!=48||socketCount!=96)throw new Exception("Biblical inventory validation failed");
+  if(lampCount!=7||breadCount!=12||toolCount!=5||frameCount!=48||socketCount!=96||Mathf.Abs(curtainCubits-40)>.01f)throw new Exception("Biblical inventory validation failed");
   Debug.Log($"TABERNACLE_INVENTORY lamps={lampCount} loaves={breadCount} altarToolTypes={toolCount} frames={frameCount} frameSockets={socketCount} cubit={Cubit}");
   gameObject.AddComponent<QuestExplorer>();
  }
@@ -107,9 +108,27 @@ public partial class TabernacleWorld : MonoBehaviour {
    for(int j=0;j<2;j++){Box("Silver frame socket",architecture,new Vector3(s*w/2,.06f,z+(j==0?-.19f:.19f)),new Vector3(.20f,.12f,.20f),silver);socketCount++;}
   }
   for(int i=0;i<6;i++)RearFrame((i-2.5f)*1.5f*Cubit,1.5f*Cubit,back,h);
-  foreach(int s in new[]{-1,1})RearFrame(s*4.75f*Cubit,.5f*Cubit,back,h);
-  // Ceiling: ten 4-cubit linen curtains with cherubim (Ex 26:1-2), shown over the 30-cubit tent (7.5 curtains). The last one is half visible.
-  for(int i=0;i<8;i++){float len=(i<7?4f:2f)*Cubit;CeilingPanel("Inner linen curtain "+(i+1),architecture,new Vector3(0,h-.012f,front+(i*4*Cubit)+len/2),w,len,curtain);}
+  // Two corner frames (26:23-24), each a full 1.5 cubits like every other frame (26:16). The text says they are "double beneath, and together at the top",
+  // so each is set in a second layer just outside the rear wall, doubled against the end frame, with its outer edge on the side wall's line.
+  foreach(int s in new[]{-1,1})RearFrame(s*4.25f*Cubit,1.5f*Cubit,back,h,.15f);
+  // Ten linen curtains of 28 x 4 cubits (26:1-2) make 40 cubits along the tent. Across the tent each runs 10 cubits over the top and 9 down each side,
+  // ending a cubit above the ground. Along the tent, 30 cubits lie overhead and the last 10 hang down the back, which is the usual reading; the text
+  // does not place them. The side and rear drops sit outside the gold frames, so they cannot be seen from inside and are hidden under the coverings outside.
+  curtainCubits=0;
+  for(int i=0;i<10;i++){
+   float start=i*4,end=start+4,top=Mathf.Clamp(30-start,0,4),rear=4-top;
+   if(top>0){
+    float len=top*Cubit,z=front+start*Cubit+len/2;
+    CeilingPanel("Inner linen curtain "+(i+1)+" top",architecture,new Vector3(0,h-.012f,z),w,len,curtain);
+    foreach(int s in new[]{-1,1})SidePanel("Inner linen curtain "+(i+1)+(s<0?" south drop":" north drop"),architecture,new Vector3(s*(w/2+.075f),h-4.5f*Cubit,z),len,9*Cubit,s,curtain);
+    curtainCubits+=top;
+   }
+   if(rear>0){
+    float len=rear*Cubit,offset=Mathf.Max(start,30)-30,y=h-(offset+rear/2)*Cubit;   // cloth beyond 30 cubits hangs down the back, top first
+    RearPanel("Inner linen curtain "+(i+1)+" rear drop",architecture,new Vector3(0,y,back+.2f),w,len,curtain);
+    curtainCubits+=rear;
+   }
+  }
   // Goat hair, red ram skins and tahash skins lie above, each slightly larger (Ex 26:7-14). The sides and rear are dressed in DressTent.
   Box("Goat hair covering",architecture,new Vector3(0,h+.035f,front+15*Cubit+.1f),new Vector3(w+.46f,.05f,30*Cubit+.46f),goatHair);
   Box("Ram skin covering, dyed red",architecture,new Vector3(0,h+.085f,front+15*Cubit+.12f),new Vector3(w+.52f,.05f,30*Cubit+.52f),ramSkin);
@@ -123,10 +142,10 @@ public partial class TabernacleWorld : MonoBehaviour {
   // Fifty gold clasps couple the two sets of five curtains at the 20-cubit line, and the veil hangs beneath them (Ex 26:6, 26:33).
   for(int i=0;i<50;i++)Box("Gold clasp",architecture,new Vector3(-w/2+(i+.5f)*w/50,h-.04f,veil-.02f),new Vector3(.04f,.05f,.04f),gold);
  }
- void RearFrame(float x,float width,float back,float h){
-  Box("Gold-covered acacia frame (west)",architecture,new Vector3(x,h/2,back),new Vector3(width-.012f,h,.14f),gold,true);frameCount++;
-  float socket=Mathf.Min(.20f,width*.42f);
-  for(int j=0;j<2;j++){Box("Silver frame socket",architecture,new Vector3(x+(j==0?-1:1)*width*.25f,.06f,back),new Vector3(socket,.12f,socket),silver);socketCount++;}
+ void RearFrame(float x,float width,float back,float h,float depth=0){
+  Box("Gold-covered acacia frame (west)",architecture,new Vector3(x,h/2,back+depth),new Vector3(width-.012f,h,.14f),gold,true);frameCount++;
+  float socket=.20f;
+  for(int j=0;j<2;j++){Box("Silver frame socket",architecture,new Vector3(x+(j==0?-1:1)*width*.25f,.06f,back+depth),new Vector3(socket,.12f,socket),silver);socketCount++;}
  }
  void BuildAltar(){
   var t=Group("Furnishing — bronze altar",new Vector3(0,0,8));float w=5*Cubit,h=3*Cubit;

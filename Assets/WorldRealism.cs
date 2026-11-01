@@ -93,6 +93,22 @@ public partial class TabernacleWorld {
    Fabric(label[i]+" covering, west end",architecture,new Vector3(0,mid,front+length+.22f+.03f*i),w+.44f+.06f*i,height,layer[i],false,180,0,6);
   }
  }
+ // Vertical panels for the linen drops. SidePanel spans z and faces +-x; RearPanel spans x and faces +z (west). u runs along the span.
+ void SidePanel(string name,Transform parent,Vector3 center,float lengthZ,float height,int facing,Material material){
+  Quad(name,parent,center,new Vector3(0,0,lengthZ),new Vector3(0,height,0),new Vector3(facing,0,0),material);
+ }
+ void RearPanel(string name,Transform parent,Vector3 center,float widthX,float height,Material material){
+  Quad(name,parent,center,new Vector3(widthX,0,0),new Vector3(0,height,0),Vector3.forward,material);
+ }
+ void Quad(string name,Transform parent,Vector3 center,Vector3 across,Vector3 up,Vector3 normal,Material material){
+  var g=new GameObject(name);g.transform.SetParent(parent,false);g.transform.localPosition=center;
+  var mesh=new Mesh{name=name};
+  mesh.vertices=new[]{-across/2-up/2,-across/2+up/2,across/2+up/2,across/2-up/2};
+  mesh.normals=new[]{normal,normal,normal,normal};
+  mesh.uv=new[]{new Vector2(0,0),new Vector2(0,1),new Vector2(1,1),new Vector2(1,0)};
+  mesh.triangles=new[]{0,1,2,0,2,3};mesh.RecalculateBounds();
+  g.AddComponent<MeshFilter>().sharedMesh=mesh;var r=g.AddComponent<MeshRenderer>();r.sharedMaterial=material;r.shadowCastingMode=ShadowCastingMode.TwoSided;
+ }
  // A flat horizontal panel facing down, with the image upright for a visitor looking west: u runs north (+x), v runs west (+z).
  void CeilingPanel(string name,Transform parent,Vector3 center,float sizeX,float sizeZ,Material material){
   var g=new GameObject(name);g.transform.SetParent(parent,false);g.transform.localPosition=center;
