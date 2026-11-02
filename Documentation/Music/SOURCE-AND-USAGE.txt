@@ -40,4 +40,4 @@ Master: grace-greater-instrumental.wav, 90.91 seconds, stereo 32000 Hz,
 Unity: Audio/GraceGreaterInstrumental.
 Player now alternates the two hymns with a short pause between tracks.
 Both share the existing music mute, volume and guide ducking controls.
-APK has not been rebuilt; tablet and guide wiring remain pending.
+Included in the v0.4 APK; tablet controls and automatic guide-speech ducking are wired.

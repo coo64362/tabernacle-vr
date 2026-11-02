@@ -1,0 +1,8 @@
+beb0d1848dee9a49da392cc3df26958d46cfa35d321edf434f52949153f0df3a  /private/tmp/tabernacle-tts-model/kokoro-v1.0.onnx
+bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d  /private/tmp/tabernacle-tts-model/voices-v1.0.bin
+15f64d150a4ba96e7208d61085473c3f07cd949da6e25a55373708411278a329  Assets/Resources/Audio/Guide/altar.wav
+d6c4aca66b98dc663eaee6c05ce6959dca0296182e740bb925f34b3b7adb4c3e  Assets/Resources/Audio/Guide/ark.wav
+97696a09ac4929b859eb96f2231b8e6bbd6069835d4dad6e50ec51a16c689821  Assets/Resources/Audio/Guide/holy-place.wav
+e88e077aa67e06132119c589bd084dc0485453f2e614f893c02a4aab2d129a60  Assets/Resources/Audio/Guide/laver.wav
+09264181aad06e3509805b2cff2f0ec059d6c5844e7dfc37b981370fc003b5c8  Assets/Resources/Audio/Guide/veil.wav
+fd917bafbdda025791437456fede405d8884f9177be618b4a30a131ef7bbf20c  Assets/Resources/Audio/Guide/welcome.wav

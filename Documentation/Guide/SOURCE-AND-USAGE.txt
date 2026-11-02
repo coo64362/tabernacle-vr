@@ -1,0 +1,36 @@
+Guide narration, v0.4
+
+Text is original educational narration approved in scope by the project owner.
+The welcome follows the owner's wording. Narration text is in narration.json;
+TabernacleExperience.Narration supplies the matching tablet captions.
+
+Voice: Kokoro-82M v1.0, bm_daniel (British English male), speed 0.98.
+Generated locally with kokoro-onnx 0.6.1, ONNX Runtime 1.31.1, phonemizer 3.5.0.
+No Apple system voice, celebrity imitation, uploaded user voice, remote speech
+service, or third-party recording is included. This is generated narration,
+not the previously discussed live conversational VelChat integration.
+
+Primary sources:
+https://huggingface.co/hexgrad/Kokoro-82M
+https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md
+https://github.com/thewh1teagle/kokoro-onnx
+Model and voice presets: Apache-2.0 (model card and license retained here).
+Generator wrapper: MIT (license retained here). See SHA256.txt for checksums.
+
+Reproduce with Tools/render_guide.py and the official v1.0 model/voice files.
+Only generated WAV files go in the Unity project; inference models and speech
+libraries are not shipped with the APK. Clips import mono, compressed in memory.
+Durations: welcome 16.04s; altar 19.12s; laver 19.53s; Holy Place 20.81s;
+veil 21.94s; ark 28.26s. All speech works offline.
+
+Scripture references:
+Altar: Exodus 27:1-8; 38:1-7.
+Basin: Exodus 30:18-21; 38:8; 40:30-32.
+Bread/table: Exodus 25:23-30; Leviticus 24:5-9.
+Lampstand: Exodus 25:31-40; 27:20-21.
+Incense altar: Exodus 30:1-10.
+Veil: Exodus 26:31-33.
+Ark: Exodus 25:10-22. Restricted historical entry: Leviticus 16.
+Dimensions and explicit inventory follow the text. Character apparel, facial
+features, the basin profile, clear water reflection and robot are interpretive
+or educational additions, not claims of prescribed biblical appearance.

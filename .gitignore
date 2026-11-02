@@ -7,3 +7,5 @@
 *.csproj
 *.sln
 .DS_Store
+
+/.utmp/

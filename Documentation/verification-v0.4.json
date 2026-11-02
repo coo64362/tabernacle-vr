@@ -1,0 +1,24 @@
+{
+  "version": "0.4.0",
+  "version_code": 5,
+  "device": "Meta Quest 2",
+  "native_android_build": "succeeded, zero build errors",
+  "apk_signature": "verified",
+  "apk_bytes": 56690548,
+  "apk_sha256": "1d052047f0c0b0b1866ca7cae500413b103845589750b7fd587ba5f05ab5f998",
+  "unity_play_mode": "passed natural welcome completion, replay, skip, movement gate, six speech clips, raycast settings, avatar/face/reflection selection, height match, guide mute/captions/visibility/station position",
+  "visual_review": "four avatars, guide, 512px water reflection, Audio/Avatar/Comfort tablet pages",
+  "navigation_and_clearance": "passed Most Holy Place confirmation and six guide positions",
+  "device_ready": true,
+  "device_welcome_started": true,
+  "device_welcome_completed": true,
+  "device_unity_errors": 0,
+  "observed_startup_fps": [
+    71.8,
+    71.8,
+    71.8,
+    71.8,
+    71.8
+  ],
+  "limits": "Startup sample only; right controller was untracked. Full-tour sustained performance, stereo reflection comfort and physical controller ergonomics need user testing. Original character models are a first 3D art pass. Reflection is avatar-only, one central image at 12 Hz; no live conversational guide service."
+}

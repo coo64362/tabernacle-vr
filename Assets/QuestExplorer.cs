@@ -20,6 +20,8 @@ public class QuestExplorer : MonoBehaviour {
  Material teleportMaterial;
  Transform marker;
  ControllerTablet tablet;
+ TabernacleExperience experience;
+ bool CanMove=>!fading&&(!experience||!experience.IntroductionPlaying);
  InputAction tabletToggle;
  bool tabletHeld,fading; float viewLift;
  Material fadeMaterial;
@@ -47,6 +49,7 @@ public class QuestExplorer : MonoBehaviour {
   var fadeObject=GameObject.CreatePrimitive(PrimitiveType.Quad);fadeObject.name="Comfort transition fade";Destroy(fadeObject.GetComponent<Collider>());fadeObject.transform.SetParent(eye.transform,false);fadeObject.transform.localPosition=new Vector3(0,0,.09f);fadeObject.transform.localScale=Vector3.one*2;
   fadeMaterial=new Material(Resources.Load<Shader>("ComfortFade"));fadeMaterial.color=Color.clear;fadeObject.GetComponent<Renderer>().sharedMaterial=fadeMaterial;
   performance=TabernacleWorld.Instance.Text("Performance",eye.transform,new Vector3(0,-.19f,.75f),"",.0055f,Color.green);performance.gameObject.SetActive(false);
+  experience=new GameObject("Tour experience").AddComponent<TabernacleExperience>();experience.Initialize(eye,left,right,tablet);
   MoveInfo(); Invoke(nameof(ConfigureXR),1);Debug.Log("TABERNACLE_READY native OpenXR prototype; right trigger teleport, stick turn, A next, B metrics");
  }
  void ConfigureXR(){
@@ -67,12 +70,12 @@ public class QuestExplorer : MonoBehaviour {
   bool overTablet=tablet.Point(right,down,out var tabletHit);
   if(overTablet){ray.positionCount=2;ray.SetPosition(0,right.position);ray.SetPosition(1,tabletHit);marker.gameObject.SetActive(false);valid=false;aiming=false;}
 
-  if(!overTablet){if(down)Aim();else {if(tracked&&Application.isFocused&&aiming&&valid)Teleport(destination);ray.positionCount=0;marker.gameObject.SetActive(false);valid=false;}
+  if(!overTablet){if(down&&CanMove)Aim();else {if(CanMove&&tracked&&Application.isFocused&&aiming&&valid)Teleport(destination);ray.positionCount=0;marker.gameObject.SetActive(false);valid=false;}
   aiming=down;}
   float stick=turn.ReadValue<Vector2>().x;
-  if(Mathf.Abs(stick)>.7f&&!snapLatched&&!down&&!fading){rig.RotateAround(eye.transform.position,Vector3.up,Mathf.Sign(stick)*30);snapLatched=true;}
+  if(Mathf.Abs(stick)>.7f&&!snapLatched&&!down&&CanMove){rig.RotateAround(eye.transform.position,Vector3.up,Mathf.Sign(stick)*(experience?experience.TurnAngle:30));snapLatched=true;}
   if(Mathf.Abs(stick)<.3f)snapLatched=false;
-  bool n=next.IsPressed();if(n&&!nextHeld&&!down){GoToStation((station+1)%TabernacleWorld.Instance.stops.Length);}nextHeld=n;
+  bool n=next.IsPressed();if(n&&!nextHeld&&!down&&CanMove){tablet.RequestStation((station+1)%TabernacleWorld.Instance.stops.Length);}nextHeld=n;
   bool b=stats.IsPressed();if(b&&!statsHeld){showStats=!showStats;performance.gameObject.SetActive(showStats);}statsHeld=b;
   detailTimer+=Time.unscaledDeltaTime;if(detailTimer>.3f){TabernacleWorld.Instance.UpdateDetails(eye.transform.position);detailTimer=0;}
   FrameTimingManager.CaptureFrameTimings();frames++;elapsed+=Time.unscaledDeltaTime;reportElapsed+=Time.unscaledDeltaTime;
@@ -92,16 +95,16 @@ public class QuestExplorer : MonoBehaviour {
  }
  void Teleport(Vector3 target){if(!TabernacleWorld.Instance.CanStand(target))return;var offset=eye.transform.position-rig.position;offset.y=0;rig.position=target-offset+Vector3.up*viewLift;}
  void MoveInfo(){tablet?.SetStation(station);}
- public void GoToStation(int value){if(fading||value<0||value>=TabernacleWorld.Instance.stops.Length)return;StartCoroutine(Transition(value));}
+ public void GoToStation(int value){if(!CanMove||value<0||value>=TabernacleWorld.Instance.stops.Length)return;StartCoroutine(Transition(value));}
  IEnumerator Transition(int value){
   fading=true;aiming=false;valid=false;
   for(float t=0;t<.15f;t+=Time.unscaledDeltaTime){fadeMaterial.color=new Color(0,0,0,t/.15f);yield return null;}
-  fadeMaterial.color=Color.black;station=value;Teleport(TabernacleWorld.Instance.stops[value]);MoveInfo();
+  fadeMaterial.color=Color.black;station=value;Teleport(TabernacleWorld.Instance.stops[value]);MoveInfo();experience?.StationChanged(value);
   Debug.Log("TABERNACLE_STATION "+value+" "+TabernacleWorld.Instance.titles[value]);yield return null;
   for(float t=0;t<.15f;t+=Time.unscaledDeltaTime){fadeMaterial.color=new Color(0,0,0,1-t/.15f);yield return null;}
   fadeMaterial.color=Color.clear;fading=false;
  }
- void SetRaisedView(bool raised){if(!fading)StartCoroutine(RaiseTransition(raised?.40f:0));}
+ void SetRaisedView(bool raised){if(CanMove)StartCoroutine(RaiseTransition(raised?.40f:0));else tablet.SyncRaisedView(viewLift>0);}
  IEnumerator RaiseTransition(float nextLift){
   fading=true;aiming=false;valid=false;
   for(float t=0;t<.15f;t+=Time.unscaledDeltaTime){fadeMaterial.color=new Color(0,0,0,t/.15f);yield return null;}
@@ -110,5 +113,5 @@ public class QuestExplorer : MonoBehaviour {
   fadeMaterial.color=Color.clear;fading=false;
  }
  void OnApplicationFocus(bool focus){if(!focus){aiming=false;valid=false;if(ray)ray.positionCount=0;if(marker)marker.gameObject.SetActive(false);}}
- void OnDestroy(){foreach(var a in actions)a.Dispose();if(teleportMaterial)Destroy(teleportMaterial);if(fadeMaterial)Destroy(fadeMaterial);}
+ void OnDestroy(){foreach(var a in actions)a.Dispose();if(teleportMaterial)Destroy(teleportMaterial);if(fadeMaterial)Destroy(fadeMaterial);if(experience)Destroy(experience.gameObject);}
 }
