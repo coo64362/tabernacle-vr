@@ -24,17 +24,19 @@ public partial class TabernacleWorld {
   // about 0.45 m tall, gold material, under roughly 6,000 triangles. One copy is placed per end, turned to face the other (Ex 25:18-20).
   var sculpted=Resources.Load<GameObject>("Models/Cherub");
   if(sculpted!=null){var copy=Instantiate(sculpted,t);copy.name="Cherub — sculpted model";copy.transform.localPosition=origin;copy.transform.localRotation=Quaternion.Euler(0,side>0?180f:0f,0);return;}
-  Ball("Cherub body — interpretive sculpture",t,origin+new Vector3(0,.12f,0),new Vector3(.27f,.15f,.14f),gold);
-  Ball("Sculpted cherub haunch",t,origin+new Vector3(side*.10f,.105f,0),new Vector3(.12f,.16f,.14f),gold);
-  Ball("Cherub face toward cover",t,origin+new Vector3(-side*.105f,.235f,0),new Vector3(.080f,.105f,.075f),gold);
-  Ball("Face profile",t,origin+new Vector3(-side*.143f,.224f,0),new Vector3(.034f,.035f,.047f),gold);
+  // Restrained, kneeling winged figures. No Assyrian crowns, curled beards or animal bodies.
+  // Anatomy is deliberately schematic: Exodus specifies posture and wings, not facial appearance.
+  Ball("Cherub kneeling robe — interpretive",t,origin+new Vector3(side*.025f,.075f,0),new Vector3(.19f,.15f,.15f),gold);
+  Ball("Cherub inclined torso",t,origin+new Vector3(-side*.025f,.19f,0),new Vector3(.10f,.18f,.10f),gold);
+  var head=Ball("Cherub lowered featureless face",t,origin+new Vector3(-side*.075f,.30f,0),new Vector3(.065f,.09f,.063f),gold);
+  head.transform.localRotation=Quaternion.Euler(0,0,-side*28);
   foreach(int z in new[]{-1,1}){
-   Rod("Guardian foreleg",t,origin+new Vector3(-side*.075f,.14f,z*.045f),origin+new Vector3(-side*.095f,.025f,z*.045f),.015f,gold);
-   Ball("Guardian paw",t,origin+new Vector3(-side*.115f,.02f,z*.045f),new Vector3(.075f,.032f,.035f),gold);
+   Rod("Cherub upper arm",t,origin+new Vector3(-side*.02f,.24f,z*.06f),origin+new Vector3(-side*.09f,.18f,z*.07f),.019f,gold);
+   Rod("Cherub lowered hand",t,origin+new Vector3(-side*.09f,.18f,z*.07f),origin+new Vector3(-side*.13f,.12f,z*.06f),.015f,gold);
    for(int feather=0;feather<13;feather++){
     float spread=(float)feather/12;
-    Vector3 from=origin+new Vector3(side*.025f,.15f,z*.045f);
-    Vector3 tip=origin+new Vector3(-side*(.17f+.22f*spread),.28f+.19f*Mathf.Sin(spread*Mathf.PI*.72f),z*(.065f+.11f*(1-spread)));
+    Vector3 from=origin+new Vector3(side*.025f,.20f,z*.045f);
+    Vector3 tip=origin+new Vector3(-side*(.19f+.22f*spread),.36f+.19f*Mathf.Sin(spread*Mathf.PI*.72f),z*(.065f+.11f*(1-spread)));
     SculptedFeather(t,from,tip,.016f+.006f*(1-spread));
    }
   }

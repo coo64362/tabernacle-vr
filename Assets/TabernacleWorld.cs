@@ -12,7 +12,7 @@ public partial class TabernacleWorld : MonoBehaviour {
  // Added for the scripture-accuracy pass: wood, the three outer coverings, the woven gate/door screen and the ceiling curtains.
  public Material acacia, goatHair, ramSkin, tahash, gateScreen, curtain;
  public List<Transform> closeDetails=new List<Transform>();
- public readonly Vector3[] stops={new Vector3(0,0,-3),new Vector3(3.6f,0,7.5f),new Vector3(2.5f,0,16),new Vector3(0,0,27.5f),new Vector3(0,0,33.1f),new Vector3(0,0,36.2f)};
+ public readonly Vector3[] stops={new Vector3(0,0,2),new Vector3(3.6f,0,7.5f),new Vector3(2.5f,0,16),new Vector3(0,0,27.5f),new Vector3(0,0,33.1f),new Vector3(0,0,36.2f)};
  public readonly string[] titles={"THE TABERNACLE", "THE BRONZE ALTAR", "THE WASHING BASIN", "THE HOLY PLACE", "THE INNER VEIL", "THE HOLY OF HOLIES"};
  public readonly string[] notes={"An educational reconstruction\nExodus 25–30; 40\nOne cubit represented as 0.4572 metres", "Five cubits square; three cubits high.\nBronze ash pots, shovels, basins, forks and firepans.\nExodus 27:1–8", "Bronze basin and bronze stand, between altar and tent.\nIts size and profile are not specified.\nExodus 30:18–21; 38:8; 40:30", "Seven oil lamps to the south; twelve loaves to the north.\nGold incense altar before the veil.\nExodus 25:23–40; 26:35; 30:1–6", "Cherubim woven into blue, purple, scarlet and linen.\nFour gold-covered posts with silver bases.\nExodus 26:31–33", "Educational access beyond the veil.\nHistorically, access was restricted: Leviticus 16.\nArk dimensions: Exodus 25:10–22.\nCherubim appearance is interpretive."};
  Transform architecture;
@@ -35,7 +35,7 @@ public partial class TabernacleWorld : MonoBehaviour {
   architecture=new GameObject("Architecture — batched by material").transform; architecture.SetParent(transform);
   BuildLandscape(); BuildCourtyard(); BuildTent();
   Batch(architecture);
-  BuildAltar(); BuildBasin(); BuildTable(); BuildLampstand(); BuildIncenseAltar(); BuildArk();
+  BuildAltar(); BuildBasin(); BuildTable(); BuildLampstand(); BuildIncenseAltar(); BuildArk(); VerifyFurnishingContacts();
   // Batch each furnishing separately so close-range decoration can still disappear at distance.
   for(int i=1;i<transform.childCount;i++) {var t=transform.GetChild(i);if(t.name.StartsWith("Furnishing"))Batch(t);}
   BuildWayfinding();
@@ -64,11 +64,12 @@ public partial class TabernacleWorld : MonoBehaviour {
  // Open bowls have a visible inside and rim, rather than an opaque sphere pretending to be a basin.
  void Bowl(string name,Transform t,Vector3 p,float r,float h,Material m,int seg=32){
   var g=new GameObject(name);g.transform.SetParent(t,false);g.transform.localPosition=p;var mesh=new Mesh();var vs=new List<Vector3>();var uv=new List<Vector2>();var tri=new List<int>();
-  float[] rr={.35f*r,.62f*r,r,r-.025f,.62f*r-.015f,.35f*r};float[] yy={0,.22f*h,h,h-.025f,.22f*h+.025f,.035f};
+  float wall=Mathf.Clamp(Mathf.Min(r*.12f,h*.20f),.002f,.025f);
+  float[] rr={.35f*r,.62f*r,r,r-wall,Mathf.Max(wall,.62f*r-wall),.35f*r};float[] yy={0,.22f*h,h,h-wall,.22f*h+wall,wall};
   for(int k=0;k<rr.Length;k++)for(int j=0;j<=seg;j++){float a=j*2*Mathf.PI/seg;vs.Add(new Vector3(Mathf.Cos(a)*rr[k],yy[k],Mathf.Sin(a)*rr[k]));uv.Add(new Vector2((float)j/seg,(float)k/5));}
   for(int k=0;k<5;k++)for(int j=0;j<seg;j++){int a=k*(seg+1)+j,b=a+seg+1;tri.AddRange(new[]{a,b,a+1,a+1,b,b+1});}
   mesh.SetVertices(vs);mesh.SetUVs(0,uv);mesh.SetTriangles(tri,0);mesh.RecalculateNormals();mesh.RecalculateBounds();g.AddComponent<MeshFilter>().sharedMesh=mesh;g.AddComponent<MeshRenderer>().sharedMaterial=m;
-  Cyl(name+" floor",t,p+new Vector3(0,.025f,0),.35f*r,.035f,m);Torus(name+" rim",t,p+Vector3.up*h,r-.012f,.018f,m);
+  Cyl(name+" floor",t,p+Vector3.up*(wall*.5f),.35f*r,wall,m);Torus(name+" rim",t,p+Vector3.up*(h-wall*.5f),r-wall*.5f,wall*.5f,m);
  }
  void BuildLandscape(){
   BuildDesert();
@@ -181,10 +182,15 @@ public partial class TabernacleWorld : MonoBehaviour {
   Box("Table top",t,new Vector3(0,height,0),new Vector3(width,.05f,length),gold,true);
   foreach(int x in new[]{-1,1})foreach(int z in new[]{-1,1}){Box("Table leg",t,new Vector3(x*(width/2-.045f),height/2,z*(length/2-.045f)),new Vector3(.055f,height,.055f),gold);Torus("Table carrying ring",t,new Vector3(x*(width/2+.035f),height-.13f,z*(length/2-.04f)),.043f,.009f,gold);}
   foreach(int s in new[]{-1,1}){Box("Table rim",t,new Vector3(s*width/2,height+.045f,0),new Vector3(.025f,.06f,length),gold);Box("Table rim",t,new Vector3(0,height+.045f,s*length/2),new Vector3(width,.06f,.025f),gold);Rod("Table carrying pole",t,new Vector3(s*(width/2+.045f),height-.13f,-.75f),new Vector3(s*(width/2+.045f),height-.13f,.75f),.018f,gold);}
-  for(int stack=0;stack<2;stack++)for(int loaf=0;loaf<6;loaf++){Ball("Bread loaf "+(++breadCount)+" of twelve",t,new Vector3(0,height+.085f+loaf*.066f,(stack==0?-.21f:.21f)),new Vector3(.33f,.063f,.31f),bread);}
-  // Small vessels represented as types, without asserting a biblical quantity for each type.
+  // Two stacks of six, resting on two shallow dishes. Loaves have flat contact surfaces.
+  for(int stack=0;stack<2;stack++){
+   float z=stack==0?-.21f:.21f;
+   Cyl("Gold plate beneath bread",t,new Vector3(0,height+.030f,z),.175f,.010f,gold);
+   Torus("Bread plate raised edge",t,new Vector3(0,height+.036f,z),.171f,.004f,gold);
+   for(int loaf=0;loaf<6;loaf++)ContactLoaf("Bread loaf "+(++breadCount)+" of twelve",t,new Vector3(0,height+.035f+loaf*.055f,z));
+  }
+  // Vessel profiles and quantities are interpretive, not explicit prescriptions.
   var v=Group("Furnishing — gold table vessels",t.position+Vector3.up*(height+.025f));
-  Bowl("Gold plate beneath bread",v,new Vector3(0,-.015f,-.21f),.17f,.025f,gold);
   Bowl("Gold cup",v,new Vector3(.16f,.005f,.38f),.035f,.045f,gold);Rod("Gold cup handle",v,new Vector3(.17f,.04f,.38f),new Vector3(.21f,.04f,.38f),.007f,gold);
   var jug=new GameObject("Gold pitcher").transform;jug.SetParent(v,false);jug.localPosition=new Vector3(.12f,0,0);jug.localScale=Vector3.one*.55f;Pitcher(jug,Vector3.zero,gold);
   Bowl("Gold pouring bowl",v,new Vector3(-.13f,0,0),.065f,.055f,gold);
@@ -203,7 +209,9 @@ public partial class TabernacleWorld : MonoBehaviour {
   }
   for(int i=0;i<4;i++)Blossom(detail,new Vector3(0,.48f+i*.32f,0));
   for(int i=-3;i<=3;i++){
-   Vector3 p=new Vector3(i*.22f,1.60f,0);Bowl("Oil lamp "+(++lampCount)+" of seven",t,p,.085f,.065f,gold,20);
+   Vector3 p=new Vector3(i*.22f,1.58f,0);
+   Cyl("Gold lamp seat",t,p+Vector3.down*.010f,.034f,.040f,gold);
+   Bowl("Oil lamp "+(++lampCount)+" of seven",t,p,.085f,.065f,gold,20);
    Cyl("Visible olive oil",detail,p+new Vector3(0,.052f,0),.06f,.005f,bronze);
    Box("Short wick",detail,p+new Vector3(0,.07f,-.064f),new Vector3(.009f,.025f,.025f),dark);
    Ball("Small oil flame",t,p+new Vector3(0,.10f,-.065f),new Vector3(.018f,.055f,.018f),flame);
@@ -218,19 +226,24 @@ public partial class TabernacleWorld : MonoBehaviour {
  void BuildIncenseAltar(){
   var t=Group("Furnishing — incense altar",new Vector3(0,0,34));float w=Cubit,h=2*Cubit;
   Box("Gold-covered incense altar",t,new Vector3(0,h/2,0),new Vector3(w,h,w),gold,true);Box("Incense altar gold molding",t,new Vector3(0,h,0),new Vector3(w+.035f,.035f,w+.035f),gold);
-  foreach(int x in new[]{-1,1})foreach(int z in new[]{-1,1})Box("Incense altar horn",t,new Vector3(x*(w/2-.03f),h+.045f,z*(w/2-.03f)),new Vector3(.045f,.10f,.045f),gold);
-  Cyl("Incense on altar",t,new Vector3(0,h+.025f,0),.12f,.015f,dark);
-  foreach(int s in new[]{-1,1})Rod("Incense altar pole",t,new Vector3(s*(w/2+.045f),h-.18f,-.55f),new Vector3(s*(w/2+.045f),h-.18f,.55f),.018f,gold);
+  foreach(int x in new[]{-1,1})foreach(int z in new[]{-1,1})CurvedHorn(t,new Vector3(x*(w/2-.035f),h+.015f,z*(w/2-.035f)),x,z);
+  // The burning bed is an interpretation; Exodus prescribes the gold top, not a separate ash plate.
+  Cyl("Incense ember bed — interpreted",t,new Vector3(0,h+.030f,0),.125f,.015f,dark);
+  for(int i=0;i<9;i++){
+   float a=i*Mathf.PI*2/9,r=i%2==0?.065f:.03f;
+   Ball("Spent incense ash",t,new Vector3(Mathf.Cos(a)*r,h+.043f,Mathf.Sin(a)*r),new Vector3(.025f,.012f,.022f),sand);
+   if(i%3==0)Ball("Faint incense ember",t,new Vector3(Mathf.Cos(a)*r,h+.046f,Mathf.Sin(a)*r),new Vector3(.010f,.006f,.009f),flame);
+  }
+  foreach(int side in new[]{-1,1}){
+   Rod("Incense altar pole",t,new Vector3(side*(w/2+.045f),h-.18f,-.55f),new Vector3(side*(w/2+.045f),h-.18f,.55f),.018f,gold);
+   int index=t.childCount;Torus("Incense altar carrying ring",t,new Vector3(side*(w/2+.045f),h-.18f,0),.034f,.008f,gold,16);t.GetChild(index).localRotation=Quaternion.Euler(90,0,0);
+  }
  }
  void BuildArk(){DetailedArk();}
  public TextMesh Text(string n,Transform parent,Vector3 p,string content,float size,Color color,TextAnchor anchor=TextAnchor.MiddleCenter){
   var g=new GameObject(n);g.transform.SetParent(parent,false);g.transform.localPosition=p;var tm=g.AddComponent<TextMesh>();tm.text=content;tm.font=font;tm.fontSize=64;tm.characterSize=size;tm.color=color;tm.anchor=anchor;tm.alignment=TextAlignment.Center;g.GetComponent<MeshRenderer>().sharedMaterial=font.material;return tm;
  }
  void BuildWayfinding(){
-  var t=Group("Welcome information",new Vector3(-2.7f,0,-1.5f));
-  Box("Information panel",t,new Vector3(0,1.5f,.02f),new Vector3(2.8f,1.6f,.07f),ink);
-  Text("Title",t,new Vector3(0,2.10f,-.025f),"THE TABERNACLE",.045f,new Color(.94f,.78f,.43f));
-  Text("Welcome",t,new Vector3(0,1.40f,-.025f),"A walk through the wilderness sanctuary\n\nRight trigger: aim, release to teleport\nRight stick: snap turn     A: next tour stop\nB: performance display\n\nText-based layout • Interpretive forms\nExodus 25–30; 40",.020f,new Color(.9f,.87f,.76f));
   foreach(var p in stops){Torus("Tour stop marker",transform,p+Vector3.up*.012f,.36f,.018f,gold);}
  }
  public bool CanStand(Vector3 p){

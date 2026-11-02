@@ -24,14 +24,14 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 80f7a4354274647dcbe9954672ba52c9, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Texture: {fileID: 2800000, guid: b8fc5794fdc34745bd705a4fcc143ab0, type: 3}
+        m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Glossiness: 0.08
+    - _Glossiness: 0.18
     - _Metallic: 0
-    - _Relief: 0.8
+    - _Relief: 1
     - _WorldScale: 0
     m_Colors:
     - _AtlasRect: {r: 1, g: 1, b: 0, a: 0}

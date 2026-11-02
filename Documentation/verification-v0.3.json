@@ -1,0 +1,21 @@
+{
+  "version": "0.3.0",
+  "branch": "claude/scripture-accuracy-quest2",
+  "device": "Quest 2",
+  "build": "Succeeded; zero build errors",
+  "signature": "verified",
+  "installed": true,
+  "launched": true,
+  "contacts": "passed; actual bounds of twelve loaves and seven lamp seats",
+  "tablet": "passed raycast tabs and two-step Most Holy Place route",
+  "lighting_bake": "passed, one lightmap plus baked reflection probes",
+  "inventory_and_destinations": "passed",
+  "startup_unity_errors": [],
+  "fps_samples": [
+    71.9,
+    71.8
+  ],
+  "limits": "Only startup observed on headset; physical tablet ergonomics, inner-room frame pacing and user comfort need user testing. Alternative cherubim remain explicitly interpretive. Robot guide, avatars, live water reflection and spoken welcome are not implemented.",
+  "sha256": "671998d7d200bdedc15e76ca324800dfedf2b3882150ccf7fa64e097033c1e98",
+  "walkthrough_ready": true
+}

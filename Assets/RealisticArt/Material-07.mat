@@ -24,18 +24,18 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: f56f017a613294c0e8e807e2aec9b0de, type: 3}
-        m_Scale: {x: 2, y: 2}
+        m_Texture: {fileID: 2800000, guid: bea8a2afe6f0b443a83a3b73b925523e, type: 3}
+        m_Scale: {x: 10, y: 10}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Glossiness: 0.67
-    - _Metallic: 0.72
-    - _Relief: 0.6
+    - _Glossiness: 0.12
+    - _Metallic: 0
+    - _Relief: 1.2
     - _WorldScale: 0
     m_Colors:
     - _AtlasRect: {r: 1, g: 1, b: 0, a: 0}
-    - _Color: {r: 0.95, g: 0.93, b: 0.88, a: 1}
+    - _Color: {r: 0.15, g: 0.105, b: 0.07, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

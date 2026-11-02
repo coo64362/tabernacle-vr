@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -17,7 +18,11 @@ public class QuestExplorer : MonoBehaviour {
  readonly FrameTiming[] timings=new FrameTiming[1];
  LineRenderer ray;
  Material teleportMaterial;
- Transform marker,info;
+ Transform marker;
+ ControllerTablet tablet;
+ InputAction tabletToggle;
+ bool tabletHeld,fading; float viewLift;
+ Material fadeMaterial;
  TextMesh information,performance;
  bool aiming,valid,snapLatched,nextHeld,statsHeld,floorMode;
  Vector3 destination;
@@ -36,9 +41,11 @@ public class QuestExplorer : MonoBehaviour {
   foreach(var hand in new[]{right,left}){var g=TabernacleWorld.Instance.Shape(PrimitiveType.Capsule,"Controller representation",hand,new Vector3(0,-.025f,0),new Vector3(.04f,.085f,.04f),TabernacleWorld.Instance.ink);g.transform.localRotation=Quaternion.Euler(40,0,0);}
   ray=new GameObject("Teleport arc").AddComponent<LineRenderer>();teleportMaterial=new Material(Resources.Load<Shader>("TeleportIndicator")){color=new Color(1,.75f,.25f)};ray.sharedMaterial=teleportMaterial;ray.widthMultiplier=.008f;ray.positionCount=0;ray.useWorldSpace=true;ray.numCornerVertices=2;
   marker=TabernacleWorld.Instance.Shape(PrimitiveType.Cylinder,"Teleport destination",null,Vector3.zero,new Vector3(.5f,.006f,.5f),TabernacleWorld.Instance.gold).transform;marker.GetComponent<Renderer>().sharedMaterial=teleportMaterial;marker.gameObject.SetActive(false);
-  info=new GameObject("Tour information").transform;
-  TabernacleWorld.Instance.Shape(PrimitiveType.Cube,"Tour panel",info,new Vector3(0,0,.025f),new Vector3(2.6f,1.1f,.04f),TabernacleWorld.Instance.ink);
-  information=TabernacleWorld.Instance.Text("Tour text",info,new Vector3(0,0,-.001f),"",.018f,new Color(.94f,.88f,.72f));
+  tablet=new GameObject("Left hand tablet").AddComponent<ControllerTablet>();tablet.Initialize(left);
+  tablet.VisitStation=GoToStation;tablet.SetRaisedView=SetRaisedView;
+  tabletToggle=Action("Tablet toggle","<XRController>{LeftHand}/secondaryButton",InputActionType.Button);
+  var fadeObject=GameObject.CreatePrimitive(PrimitiveType.Quad);fadeObject.name="Comfort transition fade";Destroy(fadeObject.GetComponent<Collider>());fadeObject.transform.SetParent(eye.transform,false);fadeObject.transform.localPosition=new Vector3(0,0,.09f);fadeObject.transform.localScale=Vector3.one*2;
+  fadeMaterial=new Material(Resources.Load<Shader>("ComfortFade"));fadeMaterial.color=Color.clear;fadeObject.GetComponent<Renderer>().sharedMaterial=fadeMaterial;
   performance=TabernacleWorld.Instance.Text("Performance",eye.transform,new Vector3(0,-.19f,.75f),"",.0055f,Color.green);performance.gameObject.SetActive(false);
   MoveInfo(); Invoke(nameof(ConfigureXR),1);Debug.Log("TABERNACLE_READY native OpenXR prototype; right trigger teleport, stick turn, A next, B metrics");
  }
@@ -55,13 +62,17 @@ public class QuestExplorer : MonoBehaviour {
   if(!floorMode)eye.transform.localPosition=headPos.ReadValue<Vector3>()+Vector3.up*1.65f;
   Pose(right,rightPos,rightRot);Pose(left,leftPos,leftRot);
   bool tracked=rightTracked.ReadValue<float>()>.5f;
-  bool down=tracked&&trigger.ReadValue<float>()>.65f;
-  if(down)Aim();else {if(tracked&&Application.isFocused&&aiming&&valid)Teleport(destination);ray.positionCount=0;marker.gameObject.SetActive(false);valid=false;}
-  aiming=down;
+  bool down=!fading&&tracked&&trigger.ReadValue<float>()>.65f;
+  bool toggle=tabletToggle.IsPressed();if(toggle&&!tabletHeld)tablet.Toggle();tabletHeld=toggle;
+  bool overTablet=tablet.Point(right,down,out var tabletHit);
+  if(overTablet){ray.positionCount=2;ray.SetPosition(0,right.position);ray.SetPosition(1,tabletHit);marker.gameObject.SetActive(false);valid=false;aiming=false;}
+
+  if(!overTablet){if(down)Aim();else {if(tracked&&Application.isFocused&&aiming&&valid)Teleport(destination);ray.positionCount=0;marker.gameObject.SetActive(false);valid=false;}
+  aiming=down;}
   float stick=turn.ReadValue<Vector2>().x;
-  if(Mathf.Abs(stick)>.7f&&!snapLatched&&!down){rig.RotateAround(eye.transform.position,Vector3.up,Mathf.Sign(stick)*30);snapLatched=true;}
+  if(Mathf.Abs(stick)>.7f&&!snapLatched&&!down&&!fading){rig.RotateAround(eye.transform.position,Vector3.up,Mathf.Sign(stick)*30);snapLatched=true;}
   if(Mathf.Abs(stick)<.3f)snapLatched=false;
-  bool n=next.IsPressed();if(n&&!nextHeld&&!down){station=(station+1)%TabernacleWorld.Instance.stops.Length;Teleport(TabernacleWorld.Instance.stops[station]);MoveInfo();Debug.Log("TABERNACLE_STATION "+station+" "+TabernacleWorld.Instance.titles[station]);}nextHeld=n;
+  bool n=next.IsPressed();if(n&&!nextHeld&&!down){GoToStation((station+1)%TabernacleWorld.Instance.stops.Length);}nextHeld=n;
   bool b=stats.IsPressed();if(b&&!statsHeld){showStats=!showStats;performance.gameObject.SetActive(showStats);}statsHeld=b;
   detailTimer+=Time.unscaledDeltaTime;if(detailTimer>.3f){TabernacleWorld.Instance.UpdateDetails(eye.transform.position);detailTimer=0;}
   FrameTimingManager.CaptureFrameTimings();frames++;elapsed+=Time.unscaledDeltaTime;reportElapsed+=Time.unscaledDeltaTime;
@@ -79,11 +90,25 @@ public class QuestExplorer : MonoBehaviour {
   }
   ray.positionCount=count;for(int i=0;i<count;i++)ray.SetPosition(i,arcPoints[i]);marker.gameObject.SetActive(valid);if(valid)marker.position=destination+Vector3.up*.012f;
  }
- void Teleport(Vector3 target){if(!TabernacleWorld.Instance.CanStand(target))return;var offset=eye.transform.position-rig.position;offset.y=0;rig.position=target-offset;}
- void MoveInfo(){
-  Vector3 p=TabernacleWorld.Instance.stops[station];info.position=p+new Vector3(-1.65f,1.65f,1.7f);info.rotation=Quaternion.Euler(0,-18,0);
-  information.text=TabernacleWorld.Instance.titles[station]+"\n\n"+TabernacleWorld.Instance.notes[station]+"\n\nA: next stop   •   Trigger: teleport   •   Stick: turn";
+ void Teleport(Vector3 target){if(!TabernacleWorld.Instance.CanStand(target))return;var offset=eye.transform.position-rig.position;offset.y=0;rig.position=target-offset+Vector3.up*viewLift;}
+ void MoveInfo(){tablet?.SetStation(station);}
+ public void GoToStation(int value){if(fading||value<0||value>=TabernacleWorld.Instance.stops.Length)return;StartCoroutine(Transition(value));}
+ IEnumerator Transition(int value){
+  fading=true;aiming=false;valid=false;
+  for(float t=0;t<.15f;t+=Time.unscaledDeltaTime){fadeMaterial.color=new Color(0,0,0,t/.15f);yield return null;}
+  fadeMaterial.color=Color.black;station=value;Teleport(TabernacleWorld.Instance.stops[value]);MoveInfo();
+  Debug.Log("TABERNACLE_STATION "+value+" "+TabernacleWorld.Instance.titles[value]);yield return null;
+  for(float t=0;t<.15f;t+=Time.unscaledDeltaTime){fadeMaterial.color=new Color(0,0,0,1-t/.15f);yield return null;}
+  fadeMaterial.color=Color.clear;fading=false;
+ }
+ void SetRaisedView(bool raised){if(!fading)StartCoroutine(RaiseTransition(raised?.40f:0));}
+ IEnumerator RaiseTransition(float nextLift){
+  fading=true;aiming=false;valid=false;
+  for(float t=0;t<.15f;t+=Time.unscaledDeltaTime){fadeMaterial.color=new Color(0,0,0,t/.15f);yield return null;}
+  fadeMaterial.color=Color.black;rig.position+=Vector3.up*(nextLift-viewLift);viewLift=nextLift;yield return null;
+  for(float t=0;t<.15f;t+=Time.unscaledDeltaTime){fadeMaterial.color=new Color(0,0,0,1-t/.15f);yield return null;}
+  fadeMaterial.color=Color.clear;fading=false;
  }
  void OnApplicationFocus(bool focus){if(!focus){aiming=false;valid=false;if(ray)ray.positionCount=0;if(marker)marker.gameObject.SetActive(false);}}
- void OnDestroy(){foreach(var a in actions)a.Dispose();if(teleportMaterial)Destroy(teleportMaterial);}
+ void OnDestroy(){foreach(var a in actions)a.Dispose();if(teleportMaterial)Destroy(teleportMaterial);if(fadeMaterial)Destroy(fadeMaterial);}
 }

@@ -1,0 +1,43 @@
+IT IS WELL WITH MY SOUL — TABERNACLE INSTRUMENTAL
+Tune: VILLE DU HAVRE, Philip P. Bliss (1876).
+Words: Horatio G. Spafford (1873); this instrumental contains no sung words.
+Public-domain melody reference:
+https://library.timelesstruths.org/music/It_Is_Well_with_My_Soul/
+Score lists the words and music as Public Domain in its embedded rights metadata.
+Source MusicXML saved as source-score.musicxml.
+
+Production: newly synthesized instrumental, 66 BPM, melody with a new sparse
+broken-triad accompaniment and short stereo room reflections. No commercial
+recording, Don Moen performance, modern arrangement, soundfont, or third-party
+instrument samples were copied. Tone is synthesized mathematically.
+Renderer: TabernacleVR/Tools/render_hymn.py (requires Python and numpy).
+Render command, from workspace root:
+python3 TabernacleVR/Tools/render_hymn.py output/tabernacle-vr/music/source-score.musicxml output/tabernacle-vr/music/it-is-well-instrumental.wav
+
+Master: 80 seconds, stereo PCM 16-bit WAV, 32000 Hz, peak 0.68 (-3.35 dBFS).
+One verse and refrain, with a release tail. This is a synthesized demo master,
+not a studio-recorded acoustic piano performance.
+
+Unity: Assets/Resources/Audio/ItIsWellInstrumental.wav.
+TabernacleMusic bootstraps in a Tabernacle scene and plays a non-spatial loop.
+HymnAudioImport configures streaming Vorbis compression.
+Default music volume: 0.16. SetVolume and SetMuted persist choices.
+SetGuideSpeaking(true/false) fades to 22% of the selected level while speaking.
+Tablet controls and live guide playback must call these methods when integrated;
+those future interfaces are not implemented by this audio change.
+
+SECOND TRACK: GRACE GREATER THAN OUR SIN
+Tune: MOODY, Daniel B. Towner (1910).
+Words: Julia H. Johnston (1910); no sung words in our instrumental.
+Source: https://library.timelesstruths.org/music/Grace_Greater_than_Our_Sin/
+Words and tune are marked Public Domain by the source.
+Score: grace-source-score.musicxml (source's embedded public-domain rights notice).
+Performance: new mathematical synthesis and original sparse accompaniment,
+using the same renderer, automatically transposed to the score's G major key.
+No third-party recording, soundfont or samples used.
+Master: grace-greater-instrumental.wav, 90.91 seconds, stereo 32000 Hz,
+16-bit PCM, peak 0.68, 66 BPM. One verse and refrain with a release tail.
+Unity: Audio/GraceGreaterInstrumental.
+Player now alternates the two hymns with a short pause between tracks.
+Both share the existing music mute, volume and guide ducking controls.
+APK has not been rebuilt; tablet and guide wiring remain pending.

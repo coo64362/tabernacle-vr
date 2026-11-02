@@ -1,0 +1,4 @@
+Built-in image generation used for original texture assets on November 2, 2026.
+InnerVeil.png and Curtain.png: flat indigo fine linen, original paired kneeling winged guardian silhouettes in cream, scarlet and purple threads, lowered featureless heads, uplifted feathered wings, geometric borders. No animal bodies, Assyrian crowns, horned headgear, curled beards, halos, text, copied film/video art or baked lighting. Full generation specification retained in this chat. Curtain uses the same original map; no earlier winged-lion imagery remains on either surface.
+TabletStone.png: seamless pale warm cream limestone, honed low-contrast pores and faint mineral variations, albedo only, no text, cracks, border, shadows or veins; suitable behind dark VR menu lettering.
+Generated with the built-in image tool. No video image assets were imported.
