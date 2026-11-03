@@ -65,7 +65,7 @@ The displayed frame rate is observed application throughput, not certification o
 
 ## Install
 
-Download the latest APK from the [GitHub release](https://github.com/coo64362/tabernacle-vr/releases/tag/v0.4.0). Build outputs are distributed through releases rather than source control.
+The v0.6 APK has been built locally and saved on the project owner’s P7 SSD. The existing [v0.4 GitHub release](https://github.com/coo64362/tabernacle-vr/releases/tag/v0.4.0) is an older build. Build outputs are distributed through releases rather than source control.
 
 Install Builds/TabernacleVR.apk using Meta Quest Developer Hub while the headset is connected and USB debugging is authorized. Open Tabernacle Walkthrough from the headset app library under Unknown Sources. The included install-on-quest.sh can install and launch it from this Mac once a single Quest is detected.
 

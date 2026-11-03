@@ -1,0 +1,41 @@
+{
+  "version": "0.6.0",
+  "version_code": 7,
+  "date": "2026-11-03",
+  "apk": {
+    "package": "org.tabernacle.walkthrough",
+    "bytes": 89992160,
+    "sha256": "dc4c673f3712634de00023d5441514ef9060b0df82e6124846591c9d29443043",
+    "build": "succeeded",
+    "build_errors": 0,
+    "zip_integrity": "pass",
+    "internet_permission": true,
+    "microphone_permission": true
+  },
+  "checks": {
+    "generated_answers": "pass",
+    "local_scripture_retrieval": "pass, 31098 verses",
+    "follow_up_memory": "pass in Unity play mode",
+    "streamed_pcm_playback": "pass in Unity play mode",
+    "first_audio_seconds_in_Unity": [
+      0.671,
+      0.401
+    ],
+    "reference_existence_validation": "pass",
+    "unknown_basin_dimensions": "pass",
+    "off_topic_redirection": "pass",
+    "rig_structure_skin_weights_textures": "pass",
+    "gesture_visual_review": "inspected rendered poses",
+    "path_around_altar": "pass",
+    "holy_place_and_most_holy_catch_up": "pass",
+    "welcome_lock_skip_replay_settings_narration": "pass"
+  },
+  "limits": {
+    "headset_installation": "deferred by user",
+    "headset_microphone_permissions_comfort_performance": "not tested",
+    "mouth": "audio amplitude driven; exact phoneme/viseme lip sync not implemented",
+    "internet_search": "not connected; Scripture is retrieved locally",
+    "generated_claims": "reference existence is validated; factual interpretation is not guaranteed by this check"
+  },
+  "editor_note": "Unity QuickSearch emitted an indexing exception at startup; application checks and APK build completed successfully."
+}

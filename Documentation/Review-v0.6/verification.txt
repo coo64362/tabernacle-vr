@@ -6,3 +6,13 @@ Generated answer pipeline (no answer selector): pass
 Revised tour process/material narration: pass
 Varied recorded thinking reactions: pass
 Headset microphone, visual gesture quality, following comfort and sustained performance: not tested
+Character texture references and supported PNG encoding: pass
+Live Unity generated answer, follow-up and PCM playback: pass
+First-audio arrival in two Unity requests: 0.671 s and 0.401 s
+Welcome lock, skip, replay, tablet settings and narration regression: pass
+Obstacle-aware following and room catch-up: pass
+Rendered robot poses inspected; dark visor and surface textures restored
+Quest v0.6.0 (7) APK: succeeded, zero build errors
+APK ZIP integrity: pass
+Hardware installation and testing: deferred by user
+Exact human phoneme lip-sync: not implemented
