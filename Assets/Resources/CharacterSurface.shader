@@ -3,10 +3,12 @@ Shader "Tabernacle/Character" {
   _Color ("Color", Color) = (1,1,1,1)
   _MainTex ("Surface", 2D) = "white" {}
   _Metal ("Metal sheen", Range(0,1)) = 0
+  [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Culling", Float) = 2
   _Glow ("Glow", Range(0,1)) = 0
  }
  SubShader {
   Tags { "RenderType"="Opaque" "Queue"="Geometry" }
+  Cull [_Cull]
   Pass {
    Tags { "LightMode"="ForwardBase" }
    CGPROGRAM

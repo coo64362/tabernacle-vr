@@ -1,0 +1,8 @@
+Scripture verses: 31098
+David and altar-ash evidence retrieval: pass
+Reference validity checks: pass
+Sentence gesture selection: pass
+Generated answer pipeline (no answer selector): pass
+Revised tour process/material narration: pass
+Varied recorded thinking reactions: pass
+Headset microphone, visual gesture quality, following comfort and sustained performance: not tested

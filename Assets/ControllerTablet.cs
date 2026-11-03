@@ -85,6 +85,7 @@ public sealed class ControllerTablet : MonoBehaviour {
  }
  public void RequestStation(int value){if(Experience&&Experience.IntroductionPlaying)return;if(value==5){page=1;pendingEntry=true;gameObject.SetActive(true);Refresh();}else VisitStation?.Invoke(value);}
  public void UpdateContent(){Refresh();}
+ public void ShowGuideAnswer(){page=0;pendingEntry=false;Refresh();}
  public void SyncRaisedView(bool value){raised=value;Refresh();}
 
  public void SetStation(int value){station=value;Refresh();}
@@ -94,8 +95,8 @@ public sealed class ControllerTablet : MonoBehaviour {
   for(int i=0;i<3;i++)foreach(var border in borders[i])border.sharedMaterial=i==page?selectedMaterial:borderMaterial;
   foreach(var divider in settingsDividers)divider.gameObject.SetActive(page==2);
   body.gameObject.SetActive(page!=2);settingsHeading.gameObject.SetActive(page==2);foreach(var row in settingsRows)row.gameObject.SetActive(page==2);
-  if(page==0&&Experience&&Experience.Captions&&!string.IsNullOrEmpty(Experience.Caption))body.text="Guide says\n\n"+Wrap(Experience.Caption,30)+"\n\n"+(Experience.IntroductionPlaying?"Welcome in progress\nSettings > Comfort: skip welcome":"A: next tour stop");
-  else if(page==0)body.text="Right trigger: point and select\nAim away: hold, release to teleport\nRight stick: turn\nHold X: ask the robot\nA: next tour stop\nY: show or hide this tablet\n\n"+TourButtons[station]+"\n"+(station==5?"Educational access beyond the veil.\nHistorical access was restricted.\nLeviticus 16":"Choose Tour to visit any room.\nMost Holy Place is behind the veil.");
+  if(page==0&&Experience&&Experience.Captions&&!string.IsNullOrEmpty(Experience.Caption))body.text="Guide says\n\n"+Wrap(Experience.Caption,30)+"\n\n"+Wrap(Experience.References,31)+"\n\n"+(Experience.IntroductionPlaying?"Welcome in progress\nSettings > Comfort: skip welcome":"A: next tour stop");
+  else if(page==0)body.text="Right trigger: point and select\nAim away: hold, release to teleport\nRight stick: turn\nHold X: ask the robot\nA: next tour stop\nY: show or hide this tablet\n\n"+TourButtons[station]+"\n"+(station==5?"Educational access beyond the veil.\nHistorical access was restricted.\nLeviticus 16":"Choose Tour to visit any room.\nMost Holy Place is behind the veil.")+(Experience&&!string.IsNullOrEmpty(Experience.References)?"\n\n"+Wrap(Experience.References,31):"");
   else if(page==1){body.text=pendingEntry?"Beyond the veil\n\nHistorically, access was restricted.\nLeviticus 16\n\nEnter educational view\n\nPoint here and press trigger":string.Join("\n\n",TourButtons);}
   else if(page==2){
    settingsHeading.text="<    "+SettingsSections[settingsSection]+"    >";
@@ -106,7 +107,7 @@ public sealed class ControllerTablet : MonoBehaviour {
    else rows=new[]{"Viewing assistance: "+(raised?"Back down":"Help me see higher"),"Snap turn: "+(e?e.TurnAngle:30)+" degrees","Robot guide: "+(!e||e.GuideVisible?"Shown":"Hidden"),e&&e.IntroductionPlaying?"Skip welcome":"Stop narration","Return to courtyard entrance"};
    for(int i=0;i<rows.Length;i++)settingsRows[i].text=rows[i];
   }
-  footer.text=Experience&&Experience.IntroductionPlaying?"Welcome in progress | Settings to skip":Experience&&Experience.Questions&&!string.IsNullOrEmpty(Experience.Questions.Status)?Experience.Questions.Status:"Point with your right controller";fitPending=true;
+  footer.text=Experience&&Experience.IntroductionPlaying?"Welcome in progress | Settings to skip":"Hold X to ask the guide";fitPending=true;
  }
  static string Wrap(string text,int width){
   var result=new System.Text.StringBuilder();int column=0;foreach(var word in text.Split(' ')){if(column>0&&column+word.Length+1>width){result.Append('\n');column=0;}if(column>0){result.Append(' ');column++;}result.Append(word);column+=word.Length;}return result.ToString();

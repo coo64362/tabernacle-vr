@@ -1,3 +1,19 @@
+Conversation and tour update v0.6
+
+The five station scripts were expanded with materials, priestly access and processes from Exodus and Leviticus. The original welcome is retained. Station recordings and six short natural reaction clips were generated with VelChat's Kokoro bm_daniel British male voice. The exact original text was checked before decoding the returned Opus packets through Concentus and saving PCM WAVs. No third-party song or celebrity voice was used.
+
+Recordings: Assets/Resources/Audio/Guide and Audio/Reactions.
+Source scripts: narration.json and Tools/render_conversation_audio.py.
+Course service API: https://vr26.vn.ugavel.com/velchat/
+Official class implementation: https://github.com/ugavrclass2026/MultiInteractionExample2026/blob/main/Assets/VirtualPerson/Scripts/VelChatClient.cs
+Streaming events: ai_partial_response.text, audio_frame(frame, frame_number, total_frames, context_id), ai_full_response_done.final_text. In a live probe, the final text event preceded the last sentence's audio; the app therefore does not treat that event as end-of-playback.
+No documented phoneme or viseme timestamps. Mouth movement is driven by the played audio amplitude, not word-shaped lip sync.
+
+Scripture corpus provenance and public-domain terms: SCRIPTURE-SOURCE.txt.
+Generative replies are paraphrases grounded in retrieved passages and are not fixed recordings or stored answer choices. No general internet search is enabled.
+
+Historical v0.4 narration provenance follows; the original welcome still uses that recording.
+
 Guide narration, v0.4
 
 Text is original educational narration approved in scope by the project owner.

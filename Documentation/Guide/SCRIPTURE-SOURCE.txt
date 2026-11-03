@@ -1,0 +1,7 @@
+Public-domain World English Bible Protestant Edition.
+Source: https://ebible.org/Scriptures/engwebp_html.zip
+License: https://ebible.org/engwebp/copyright.htm
+Archive SHA256: b5d5c2091317049f9f5fd61a092f8a97da8b6a118dc32ac7da745f08e536a81b
+Unmodified verse text imported from chapter HTML; navigation and footnotes excluded.
+AI answers are generated paraphrases, not the World English Bible translation.
+Verse records: 31098

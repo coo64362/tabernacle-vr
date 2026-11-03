@@ -1,0 +1,5 @@
+Courtyard path around bronze altar: pass
+No collision overlap while walking: pass
+Catch up into Holy Place after visitor teleport: pass
+Catch up into Most Holy Place after visitor teleport: pass
+Headset comfort and appearance: not tested

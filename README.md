@@ -1,16 +1,20 @@
-## Version 0.5 character and question update
-
-The accepted sandstone guide and girl now use skinned models with 52 and 50 bones respectively, including finger chains. The girl’s original face and hair mesh are preserved. Controller tracking drives her arms; finger gripping and walk cycles are not animated. Existing male and adult choices retain their previous avatars.
-
-The left-hand tablet is now approximately 22 × 32 cm, with separate Instructions, Tour and Settings sections. Hold X to record a question and release to submit it. Recording requests microphone permission and sends audio to VelChat. A British male voice reads the reply.
-
-The guide answers from 25 reviewed Tabernacle cards with Scripture references. The server selects a card; the app displays only its local reviewed text. Off-topic requests receive a redirect, and unrecognized results receive an uncertainty response. Reply audio is buffered and played only when its returned transcript matches the reviewed answer. This is a bounded educational guide, not an unrestricted Bible chatbot. Network access is needed for questions; recorded tour narration remains available offline.
-
-Editor verification covers rig structure, normalized skin weights, finite deformations, smaller-tablet selection, knowledge scope and an Opus audio round trip. Live VelChat checks cover topic selection, off-topic requests and exact reply speech. Quest microphone behavior, comfort and sustained frame rate still require on-device testing.
-
 # Tabernacle Walkthrough
 
-Native, offline Unity/OpenXR walkthrough for Quest 2 and Quest 3. Version 0.3 revises the visual treatment with generated photographic material maps, modeled cloth folds, an embroidered inner veil, worked metal edges, individually modeled wing feathers, and precomputed illumination. It is an art revision of the initial prototype, not a claim of identical fidelity to the concept image.
+Native Unity/OpenXR walkthrough with offline tour narration and online questions for Quest 2 and Quest 3. Version 0.3 revises the visual treatment with generated photographic material maps, modeled cloth folds, an embroidered inner veil, worked metal edges, individually modeled wing feathers, and precomputed illumination. It is an art revision of the initial prototype, not a claim of identical fidelity to the concept image.
+
+## Version 0.6 conversational guide
+
+Hold X to speak and release to ask a question from anywhere after the welcome. VelChat generates a fresh, concise answer to the question, with four recent conversation turns retained for follow-ups. The old 25-answer selector is removed. The subject boundary remains the Tabernacle and related biblical history.
+
+The app automatically retrieves relevant passages from 31,098 locally stored public-domain World English Bible verses and supplies them to the model. Cross-reference metadata helps connect furnishings to their instructions and related stories. References named in the answer are checked for real book, chapter and verse numbers before appearing on the tablet. This validates reference existence, not every generated interpretation; the model is instructed to acknowledge uncertainty. General internet search is not connected.
+
+Audio plays from received 24 kHz Opus frames through a bounded PCM ring with a 120 ms initial jitter buffer. Playback does not wait for the full text or an exact-text approval. A hesitation already being spoken can finish before the reply begins. Each request has its own context ID, so late speech packets cannot contaminate the next reply. Conversation continuity comes from bounded in-memory history. Questions may interrupt answer playback after the service has finished generating that turn. Audio and questions are sent to the course service; visitor recordings are not saved by this app.
+
+The tablet does not display transcription, thinking or preparation messages. Sandy responds with attentive head motion, occasional varied 'hmm', 'umm', 'well' or 'let me think', and a longer-wait phrase after 8.5 seconds. Fillers are not repeated in a loop. Nods, explanatory arm motions, a hand-to-chin pose, eye movement, a welcome wave and furnishing-directed gestures accompany relevant sentences. The digital mouth follows actual output audio amplitude and rests during silence. VelChat's documented events provide no phoneme/viseme timings; this is not exact word-shaped human lip sync. Male/adult face work is still separate.
+
+Sandy follows through collision-aware paths while visitors explore. Large visitor teleports allow catch-up beside or behind the visitor in valid walkable space, rather than passing through furnishings. The recorded tour now covers materials, service permissions and ritual processes with references from Exodus and Leviticus. The small tablet remains approximately 22 × 32 cm. Character textures are actual Unity-supported PNGs with explicit material references.
+
+Quest microphone behavior, visual comfort, and sustained performance still require headset testing. See Documentation/Review-v0.6 and Documentation/conversation-live-check.json for editor and service checks.
 
 ## Controls
 
