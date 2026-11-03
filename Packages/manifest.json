@@ -35,6 +35,11 @@
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
     "com.unity.xr.openxr": "1.16.1",
-    "com.itisnajim.socketiounity": "https://github.com/itisnajim/SocketIOUnity.git"
+    "com.itisnajim.socketiounity": "https://github.com/itisnajim/SocketIOUnity.git",
+    "com.hecomi.ulipsync": "file:com.hecomi.ulipsync",
+    "com.unity.burst": "1.8.31",
+    "com.unity.mathematics": "1.3.3",
+    "com.unity.collections": "2.7.1",
+    "com.unity.timeline": "1.8.13"
   }
 }

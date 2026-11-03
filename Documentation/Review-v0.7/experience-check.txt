@@ -1,0 +1,2 @@
+PASS: welcome completes naturally and unlocks movement; skip and replay; all six narration clips; avatar and face choices; reflection settings; height calibration; guide mute and captions; station placement.
+The editor emitted its existing QuickSearch startup indexing exception; the explicit experience check completed successfully. The headless run also emitted no-listener warnings; this did not prevent narration completion checks.

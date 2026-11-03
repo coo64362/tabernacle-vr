@@ -1,0 +1,10 @@
+{
+  "version": "0.7.0",
+  "versionCode": 8,
+  "bytes": 104600050,
+  "sha256": "68c8b7698120b70e425100603a70b30147e18fa94322d6955ea50ecc42307d56",
+  "zipIntegrity": "pass",
+  "architecture": "ARM64",
+  "burstLibrary": "present",
+  "headsetTested": false
+}

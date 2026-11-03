@@ -2,6 +2,12 @@
 
 Native Unity/OpenXR walkthrough with offline tour narration and online questions for Quest 2 and Quest 3. Version 0.3 revises the visual treatment with generated photographic material maps, modeled cloth folds, an embroidered inner veil, worked metal edges, individually modeled wing feathers, and precomputed illumination. It is an art revision of the initial prototype, not a claim of identical fidelity to the concept image.
 
+## Version 0.7 human speech face
+
+The accepted female child's reflection now has six speech mouth shapes, an inner mouth, upper teeth and tongue. While holding X, her mouth follows the visitor's microphone audio through local uLipSync phoneme estimation. The microphone is shared with the question recorder; there is no audible monitoring, extra upload or additional AI prompt. The controller supports speech playback for future human speakers too. The neutral face and existing body/finger rig are preserved; unused mouth shapes are stripped from the headless first-person body.
+
+This estimates vowels and smooth transitions; it does not provide exact consonant or word alignment. Boy/adult faces and Sandy's existing digital mouth are unchanged. Offline speech, silence/cancellation, imported-face renders and existing experience checks passed. Quest microphone latency and sustained frame rate remain untested. See [the v0.7 review](Documentation/Review-v0.7/README.md).
+
 ## Version 0.6 conversational guide
 
 Hold X to speak and release to ask a question from anywhere after the welcome. VelChat generates a fresh, concise answer to the question, with four recent conversation turns retained for follow-ups. The old 25-answer selector is removed. The subject boundary remains the Tabernacle and related biblical history.

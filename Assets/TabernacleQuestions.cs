@@ -26,7 +26,7 @@ public sealed class TabernacleQuestions : MonoBehaviour {
  public bool Waiting=>phase==Phase.Transcribing||phase==Phase.Answering&&!stream.Started;
  Phase phase;SocketIOUnity socket;TabernacleExperience experience;ControllerTablet tablet;AudioSource voice,reaction;GuideAudioStream stream;InputAction talk;
  Task<ScriptureSearch> search;string persona,contextId,answer="",recentQuestion="",question="";int turns;volatile bool connected;bool held,inFlight,complete,hadAudio,shortReaction,longReaction;float deadline,waitingSince,nextReaction,completedAt,lastPacket;AudioClip recording;string microphone;int framesReceived;bool receiving;
- readonly Queue<Frame> incomingAudio=new Queue<Frame>();readonly List<Segment> segments=new List<Segment>();int activeSegment=-1;
+ readonly Queue<Frame> incomingAudio=new Queue<Frame>();readonly List<Segment> segments=new List<Segment>();int activeSegment=-1;int mouthReadPosition;readonly float[] mouthSamples=new float[320];float[] mouthInterleaved;
  readonly OpusDecoder decoder=new OpusDecoder(24000,1);readonly float[] pcm=new float[480];
  public void Initialize(TabernacleExperience owner,ControllerTablet controller){
   experience=owner;tablet=controller;persona=Resources.Load<TextAsset>("Guide/ConversationPrompt").text;
@@ -78,7 +78,7 @@ public sealed class TabernacleQuestions : MonoBehaviour {
   if(!Permission.HasUserAuthorizedPermission(Permission.Microphone)){Permission.RequestUserPermission(Permission.Microphone);Status="Allow microphone, then hold X again";tablet.UpdateContent();return;}
 #endif
   if(Microphone.devices.Length==0){Fail("No microphone is available.");return;}
-  experience.StopForQuestion();stream.ResetStream();StopWaiting();experience.SetQuestionCaption("");experience.SetReferences("");microphone=Microphone.devices[0];recording=Microphone.Start(microphone,false,20,16000);phase=Phase.Recording;deadline=Time.realtimeSinceStartup+19;experience.Guide.Listening=true;Status="";tablet.UpdateContent();
+  experience.StopForQuestion();stream.ResetStream();StopWaiting();experience.SetQuestionCaption("");experience.SetReferences("");microphone=Microphone.devices[0];recording=Microphone.Start(microphone,false,20,16000);phase=Phase.Recording;mouthReadPosition=0;mouthInterleaved=recording&&recording.channels>1?new float[320*recording.channels]:mouthSamples;experience.Avatar.BeginSpeechCapture();deadline=Time.realtimeSinceStartup+19;experience.Guide.Listening=true;Status="";tablet.UpdateContent();
  }
  public async void EndCapture(){
   if(phase!=Phase.Recording)return;int count=Microphone.GetPosition(microphone);Microphone.End(microphone);experience.Guide.Listening=false;
@@ -102,6 +102,7 @@ public sealed class TabernacleQuestions : MonoBehaviour {
  }
  void React(string name){var clip=Resources.Load<AudioClip>("Audio/Reactions/"+name);if(!clip)return;reaction.clip=clip;reaction.mute=experience.GuideMuted;reaction.Play();experience.Guide.PlayGesture("think",clip.length);}
  void Update(){
+  if(phase==Phase.Recording)UpdateVisitorMouth();
   if(talk==null)return;bool pressed=talk.IsPressed();if(pressed&&!held)BeginCapture();if(!pressed&&held)EndCapture();held=pressed;
   if(Busy&&Time.realtimeSinceStartup>deadline){if(phase==Phase.Recording)EndCapture();else{socket?.Disconnect();connected=false;inFlight=false;Fail("That connection took too long. Please try again.");socket?.Connect();}return;}
   if(phase==Phase.Idle){if(reaction.isPlaying)experience.Guide.SetSpeechAudio(reaction);else if(experience.Guide.SpeechAudio==reaction)experience.Guide.SetSpeechAudio(null);}
@@ -119,7 +120,16 @@ public sealed class TabernacleQuestions : MonoBehaviour {
  void Finish(){if(phase==Phase.Recording)Microphone.End(microphone);ReleaseRecording();stream?.ResetStream();incomingAudio.Clear();StopWaiting();ClearQuestionVoice();if(!string.IsNullOrWhiteSpace(question)&&!string.IsNullOrWhiteSpace(answer)){recentQuestion=question;recentAnswer=answer;history.Enqueue("Visitor: "+question+"\nGuide: "+answer);while(history.Count>4)history.Dequeue();question="";answer="";}phase=Phase.Idle;inFlight=false;receiving=false;TabernacleMusic.Instance?.SetGuideSpeaking(false);Status="Hold X to ask the guide";tablet?.UpdateContent();}
  void Fail(string message){if(inFlight)Cancel();else Finish();experience?.SetQuestionCaption(message);React("connection");}
  void ClearQuestionVoice(){if(experience&&experience.Guide&&(experience.Guide.SpeechAudio==voice||experience.Guide.SpeechAudio==reaction))experience.Guide.SetSpeechAudio(null);}
- void ReleaseRecording(){if(recording)Destroy(recording);recording=null;}
+ void UpdateVisitorMouth(){
+  if(!recording)return;int position=Microphone.GetPosition(microphone);
+  if(position-mouthReadPosition>1600)mouthReadPosition=position-1600;
+  // Fixed 20 ms blocks avoid allocations, duplicate audio, and a second microphone owner.
+  for(int blocks=0;blocks<8&&position-mouthReadPosition>=mouthSamples.Length;blocks++){
+   if(recording.GetData(mouthInterleaved,mouthReadPosition)){if(recording.channels>1)for(int i=0;i<320;i++){float sum=0;for(int ch=0;ch<recording.channels;ch++)sum+=mouthInterleaved[i*recording.channels+ch];mouthSamples[i]=sum/recording.channels;}experience.Avatar.FeedSpeech(mouthSamples,recording.frequency);}
+   mouthReadPosition+=mouthSamples.Length;
+  }
+ }
+ void ReleaseRecording(){experience?.Avatar?.EndSpeechCapture();if(recording)Destroy(recording);recording=null;}
  void OnApplicationFocus(bool focused){if(!focused&&phase==Phase.Recording)Cancel();}
  void OnApplicationPause(bool paused){if(paused&&Busy)Cancel();}
  void OnDestroy(){if(phase==Phase.Recording)Microphone.End(microphone);ReleaseRecording();talk?.Dispose();socket?.Disconnect();socket?.Dispose();}

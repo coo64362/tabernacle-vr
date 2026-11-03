@@ -1,0 +1,1 @@
+Six imported speech shapes; three skinned inner-mouth surfaces; material assignments; finite, nonempty deformations: PASS
