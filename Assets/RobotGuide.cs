@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public sealed class RobotGuide : MonoBehaviour {
- Transform head,leftArm,rightArm,mouth;Transform viewer;
+ Transform head,leftArm,rightArm,mouth;Transform viewer;RiggedGuideVisual rigged;
  readonly List<Material> materials=new List<Material>();
  public bool Speaking {get;set;}public bool Welcoming {get;set;}
  Material New(string name,Color color){var m=CharacterGeometry.Material(name,color);materials.Add(m);return m;}
  Transform Part(string name,Transform parent,Vector3 p,Vector3 size,Material m)=>CharacterGeometry.Oval(name,parent,p,size,m);
  public void Initialize(Transform user){
-  viewer=user;var shell=New("Sandy ceramic shell",new Color(.78f,.67f,.48f));var trim=New("Warm ivory trim",new Color(.96f,.88f,.69f));var joint=New("Graphite joints",new Color(.07f,.09f,.095f));var glow=New("Soft teal display",new Color(.25f,.82f,.77f));glow.SetFloat("_Glow",1);
+  viewer=user;var accepted=Resources.Load<GameObject>("Characters/SandstoneGuideReady");if(accepted){var visual=Instantiate(accepted,transform,false);rigged=visual.AddComponent<RiggedGuideVisual>();rigged.Initialize(this,user);SetStation(0);return;}var shell=New("Sandy ceramic shell",new Color(.78f,.67f,.48f));var trim=New("Warm ivory trim",new Color(.96f,.88f,.69f));var joint=New("Graphite joints",new Color(.07f,.09f,.095f));var glow=New("Soft teal display",new Color(.25f,.82f,.77f));glow.SetFloat("_Glow",1);
   var body=CharacterGeometry.Group("Guide torso",transform,Vector3.zero);
   Part("Rounded torso",body,new Vector3(0,.90f,0),new Vector3(.44f,.55f,.29f),shell);
   Part("Chest inset",body,new Vector3(0,.97f,.125f),new Vector3(.24f,.25f,.055f),trim);
@@ -46,6 +46,7 @@ public sealed class RobotGuide : MonoBehaviour {
  void LateUpdate(){
   if(!viewer)return;
   var to=viewer.position-transform.position;to.y=0;if(to.sqrMagnitude>.01f)transform.rotation=Quaternion.Slerp(transform.rotation,Quaternion.LookRotation(to),Time.unscaledDeltaTime*4);
+  if(rigged)return;
   var look=viewer.position-head.position;if(look.sqrMagnitude>.01f)head.rotation=Quaternion.Slerp(head.rotation,Quaternion.LookRotation(look),Time.unscaledDeltaTime*5);
   rightArm.localRotation=Quaternion.Euler(Welcoming?-12:Speaking?-18:0,0,Welcoming?155+Mathf.Sin(Time.unscaledTime*5)*15:Speaking?25+Mathf.Sin(Time.unscaledTime*2)*7:5);
   leftArm.localRotation=Quaternion.Euler(Speaking?-20:0,0,Speaking?-20:-5);

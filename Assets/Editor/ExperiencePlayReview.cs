@@ -49,6 +49,7 @@ public static class ExperiencePlayReview {
   }catch(Exception e){Debug.LogException(e);Finish(1);}
  }
  static void CaptureTablet(string name){
+  if(SystemInfo.graphicsDeviceType==UnityEngine.Rendering.GraphicsDeviceType.Null)return;
   var folder="../output/tabernacle-vr/experience-previews";System.IO.Directory.CreateDirectory(folder);var camera=new GameObject("Settings review camera").AddComponent<Camera>();camera.transform.position=tablet.transform.position-tablet.transform.forward*.75f;camera.transform.rotation=Quaternion.LookRotation(tablet.transform.forward,tablet.transform.up);camera.fieldOfView=52;camera.nearClipPlane=.05f;camera.cullingMask=~(1<<11);tablet.SendMessage("LateUpdate");ExperienceReview.Capture(camera,folder+"/"+name+".png",1000,1200);UnityEngine.Object.Destroy(camera.gameObject);
  }
  static void Click(float x,float y){var target=tablet.transform.TransformPoint(new Vector3(x,y,0));pointer.position=target-tablet.transform.forward*.7f;pointer.rotation=Quaternion.LookRotation(tablet.transform.forward);Physics.SyncTransforms();Check(tablet.Point(pointer,false,out var hit),"Pointer missed scaled tablet");tablet.Point(pointer,true,out hit);tablet.Point(pointer,false,out hit);}

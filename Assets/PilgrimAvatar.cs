@@ -4,6 +4,7 @@ using UnityEngine;
 public sealed class PilgrimAvatar : MonoBehaviour {
  public bool Female {get;private set;}public bool ChildFace {get;private set;}
  public float Height {get;private set;}=1.65f;
+ RiggedPilgrimPose reflectionRig,selfRig;
  Transform eye,left,right,root,face,leftUpper,leftLower,rightUpper,rightLower,leftHand,rightHand,selfRobe;
  Transform selfLeftUpper,selfLeftLower,selfRightUpper,selfRightLower,selfLeftHand,selfRightHand;
  readonly List<Material> materials=new List<Material>();
@@ -20,6 +21,9 @@ public sealed class PilgrimAvatar : MonoBehaviour {
  Transform Part(string name,Transform parent,Vector3 p,Vector3 size,Material m)=>CharacterGeometry.Oval(name,parent,p,size,m,11);
  public void Rebuild(){
   if(root){root.gameObject.SetActive(false);Release(root.gameObject);}if(selfRobe){selfRobe.gameObject.SetActive(false);Release(selfRobe.gameObject);}
+  reflectionRig=null;selfRig=null;
+  var accepted=Female&&ChildFace?Resources.Load<GameObject>("Characters/FemaleChildReady"):null;
+  if(accepted){root=Instantiate(accepted,transform,false).transform;SetLayer(root,11);reflectionRig=root.gameObject.AddComponent<RiggedPilgrimPose>();reflectionRig.Initialize(eye,left,right);var first=Resources.Load<GameObject>("Characters/FemaleChildFirstPerson");selfRobe=Instantiate(first,transform,false).transform;selfRig=selfRobe.gameObject.AddComponent<RiggedPilgrimPose>();selfRig.Initialize(eye,left,right);return;}
   root=CharacterGeometry.Group("Chosen pilgrim — reflection",transform,Vector3.zero);root.gameObject.layer=11;
   var body=CharacterGeometry.Group("Woven clothing",root,Vector3.zero);body.gameObject.layer=11;
   CharacterGeometry.Garment("Long linen robe",body,.08f,1.25f,.31f,.225f,linen,11);
@@ -61,6 +65,7 @@ public sealed class PilgrimAvatar : MonoBehaviour {
  Transform SelfPart(string name,Material material)=>CharacterGeometry.Oval(name,selfRobe,Vector3.zero,Vector3.one,material);
  public void UpdatePose(){
   if(!eye||!root)return;
+  if(reflectionRig){reflectionRig.Pose(Height);selfRig.Pose(Height);return;}
   float height=eye.localPosition.y;float scale=Height/1.58f;
   root.rotation=Quaternion.Euler(0,eye.eulerAngles.y,0);float lean=Mathf.InverseLerp(25,75,Mathf.DeltaAngle(0,eye.eulerAngles.x))*.20f;var floor=eye.position-Vector3.up*height-root.forward*(.20f+lean);root.position=floor;root.localScale=Vector3.one*scale;
   // The selected face follows the user's real head; choosing a child face never shrinks their viewpoint.
@@ -73,6 +78,7 @@ public sealed class PilgrimAvatar : MonoBehaviour {
   var shoulder=root.TransformPoint(new Vector3(side*.23f,1.22f,0));var wrist=controller.position;var elbow=Vector3.Lerp(shoulder,wrist,.55f)-Vector3.up*.12f+root.right*side*.06f;
   CharacterGeometry.Segment(upper,shoulder,elbow,.14f);CharacterGeometry.Segment(lower,elbow,wrist,.075f);hand.position=wrist;hand.rotation=controller.rotation;
  }
+ static void SetLayer(Transform t,int layer){foreach(var child in t.GetComponentsInChildren<Transform>(true))child.gameObject.layer=layer;}
  static void Release(Object item){if(Application.isPlaying)Destroy(item);else DestroyImmediate(item);}
  void OnDestroy(){foreach(var material in materials)if(material)Destroy(material);}
 }

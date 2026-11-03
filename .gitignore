@@ -1,9 +1,9 @@
-/Library/
+/Library
 /Temp/
 /Obj/
 /Logs/
 /UserSettings/
-/Builds/
+/Builds
 *.csproj
 *.sln
 .DS_Store

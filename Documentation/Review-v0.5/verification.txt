@@ -1,0 +1,12 @@
+Skinned prefabs: pass
+Finger chains: pass
+Finite baked rest poses: pass
+Tablet scale 0.5: pass
+Tablet ray selection: pass
+Reviewed knowledge cards: 25
+Quest hardware test: not run
+Normalized skin weights: pass
+Opus synthetic round trip: pass
+Play-mode welcome, movement lock, settings and narration: pass
+Live VelChat topic/scope/exact speech checks: pass (see velchat-live-check.json)
+Unity Editor emitted a QuickSearch indexing exception; experience checks completed successfully.

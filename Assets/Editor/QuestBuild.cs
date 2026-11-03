@@ -19,15 +19,15 @@ public static class QuestBuild {
  [MenuItem("Tabernacle/Configure and build Quest")]
  public static void Build(){
   Directory.CreateDirectory("Assets/XR");Directory.CreateDirectory("Builds");
-  PlayerSettings.companyName="Tabernacle Study";PlayerSettings.productName="Tabernacle Walkthrough";PlayerSettings.bundleVersion="0.4.0";
-  PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android,"org.tabernacle.walkthrough");PlayerSettings.Android.bundleVersionCode=5;
+  PlayerSettings.companyName="Tabernacle Study";PlayerSettings.productName="Tabernacle Walkthrough";PlayerSettings.bundleVersion="0.5.0";
+  PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android,"org.tabernacle.walkthrough");PlayerSettings.Android.bundleVersionCode=6;
   PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android,ScriptingImplementation.IL2CPP);PlayerSettings.Android.targetArchitectures=AndroidArchitecture.ARM64;
   PlayerSettings.Android.minSdkVersion=AndroidSdkVersions.AndroidApiLevel29;PlayerSettings.Android.targetSdkVersion=AndroidSdkVersions.AndroidApiLevelAuto;
   PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android,false);PlayerSettings.SetGraphicsAPIs(BuildTarget.Android,new[]{GraphicsDeviceType.OpenGLES3});
-  PlayerSettings.colorSpace=ColorSpace.Linear;PlayerSettings.gpuSkinning=false;PlayerSettings.MTRendering=true;
+  PlayerSettings.colorSpace=ColorSpace.Linear;PlayerSettings.gpuSkinning=true;PlayerSettings.MTRendering=true;
   PlayerSettings.Android.useCustomKeystore=false;PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android,ManagedStrippingLevel.Low);
   PlayerSettings.stripEngineCode=true;PlayerSettings.Android.androidIsGame=true;PlayerSettings.Android.renderOutsideSafeArea=true;
-  PlayerSettings.enableFrameTimingStats=true;
+  PlayerSettings.enableFrameTimingStats=true;PlayerSettings.Android.forceInternetPermission=true;
   QualitySettings.antiAliasing=4;QualitySettings.vSyncCount=0;QualitySettings.shadows=ShadowQuality.Disable;QualitySettings.pixelLightCount=0;QualitySettings.lodBias=1;
   var projectSettings=new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset")[0]);var input=projectSettings.FindProperty("activeInputHandler");if(input!=null)input.intValue=1;projectSettings.ApplyModifiedPropertiesWithoutUndo();
   XRGeneralSettingsPerBuildTarget perTarget;

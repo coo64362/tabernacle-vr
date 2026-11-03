@@ -1,3 +1,13 @@
+## Version 0.5 character and question update
+
+The accepted sandstone guide and girl now use skinned models with 52 and 50 bones respectively, including finger chains. The girl’s original face and hair mesh are preserved. Controller tracking drives her arms; finger gripping and walk cycles are not animated. Existing male and adult choices retain their previous avatars.
+
+The left-hand tablet is now approximately 22 × 32 cm, with separate Instructions, Tour and Settings sections. Hold X to record a question and release to submit it. Recording requests microphone permission and sends audio to VelChat. A British male voice reads the reply.
+
+The guide answers from 25 reviewed Tabernacle cards with Scripture references. The server selects a card; the app displays only its local reviewed text. Off-topic requests receive a redirect, and unrecognized results receive an uncertainty response. Reply audio is buffered and played only when its returned transcript matches the reviewed answer. This is a bounded educational guide, not an unrestricted Bible chatbot. Network access is needed for questions; recorded tour narration remains available offline.
+
+Editor verification covers rig structure, normalized skin weights, finite deformations, smaller-tablet selection, knowledge scope and an Opus audio round trip. Live VelChat checks cover topic selection, off-topic requests and exact reply speech. Quest microphone behavior, comfort and sustained frame rate still require on-device testing.
+
 # Tabernacle Walkthrough
 
 Native, offline Unity/OpenXR walkthrough for Quest 2 and Quest 3. Version 0.3 revises the visual treatment with generated photographic material maps, modeled cloth folds, an embroidered inner veil, worked metal edges, individually modeled wing feathers, and precomputed illumination. It is an art revision of the initial prototype, not a claim of identical fidelity to the concept image.

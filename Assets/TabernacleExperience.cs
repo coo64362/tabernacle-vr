@@ -11,6 +11,7 @@ public sealed class TabernacleExperience : MonoBehaviour {
  public PilgrimAvatar Avatar {get;private set;}
  public LaverReflection Reflection {get;private set;}
  public RobotGuide Guide {get;private set;}
+ public TabernacleQuestions Questions {get;private set;}
  public string Caption {get;private set;}="";
  ControllerTablet tablet;AudioSource voice;Coroutine speech;int currentStation;
  readonly string[] clips={"welcome","altar","laver","holy-place","veil","ark"};
@@ -29,6 +30,7 @@ public sealed class TabernacleExperience : MonoBehaviour {
   Guide=new GameObject("Sandy robot guide").AddComponent<RobotGuide>();Guide.transform.SetParent(transform,false);Guide.Initialize(eye.transform);SetGuideVisible(GuideVisible);
   voice=Guide.gameObject.AddComponent<AudioSource>();voice.playOnAwake=false;voice.spatialBlend=.35f;voice.minDistance=1.5f;voice.maxDistance=12;voice.rolloffMode=AudioRolloffMode.Linear;voice.priority=32;voice.volume=.85f;
   Reflection=new GameObject("Laver reflection system").AddComponent<LaverReflection>();Reflection.transform.SetParent(transform,false);Reflection.Initialize(eye);Reflection.Enabled=PlayerPrefs.GetInt("AvatarReflection",1)!=0;
+  Questions=gameObject.AddComponent<TabernacleQuestions>();Questions.Initialize(this,tablet);
   IntroductionPlaying=true;speech=StartCoroutine(Speak(0,true,true));
  }
  public void SetGuideMuted(bool muted){GuideMuted=muted;PlayerPrefs.SetInt("GuideMuted",muted?1:0);PlayerPrefs.Save();if(voice){voice.mute=muted;TabernacleMusic.Instance?.SetGuideSpeaking(!muted&&voice.isPlaying);}}
@@ -38,8 +40,8 @@ public sealed class TabernacleExperience : MonoBehaviour {
  public void CycleTurn(){TurnAngle=TurnAngle==30?45:30;PlayerPrefs.SetInt("TurnAngle",(int)TurnAngle);PlayerPrefs.Save();}
  public void StationChanged(int station){currentStation=station;Guide.SetStation(station);BeginSpeech(station,false);}
  public void Replay(){BeginSpeech(currentStation,currentStation==0);}
- public void Skip(){EndSpeech();Debug.Log("TABERNACLE_INTRO unlocked by skip");}
- void BeginSpeech(int station,bool introduction){EndSpeech();IntroductionPlaying=introduction;speech=StartCoroutine(Speak(station,introduction,false));}
+ public void Skip(){Questions?.Cancel();EndSpeech();Debug.Log("TABERNACLE_INTRO unlocked by skip");}
+ void BeginSpeech(int station,bool introduction){Questions?.Cancel();EndSpeech();IntroductionPlaying=introduction;speech=StartCoroutine(Speak(station,introduction,false));}
  IEnumerator Speak(int station,bool introduction,bool delay){
   if(delay){float waited=0;while(waited<1.5f){if(Application.isFocused||Application.isBatchMode)waited+=Time.unscaledDeltaTime;yield return null;}}
   if(delay)Avatar.Calibrate();
@@ -60,6 +62,8 @@ public sealed class TabernacleExperience : MonoBehaviour {
   voice.Stop();Guide.Speaking=false;Guide.Welcoming=false;IntroductionPlaying=false;Caption="";speech=null;TabernacleMusic.Instance?.SetGuideSpeaking(false);tablet.UpdateContent();Debug.Log("TABERNACLE_GUIDE complete movementUnlocked=true");
  }
  void EndSpeech(){if(speech!=null){StopCoroutine(speech);speech=null;}if(voice)voice.Stop();if(Guide){Guide.Speaking=false;Guide.Welcoming=false;}IntroductionPlaying=false;Caption="";TabernacleMusic.Instance?.SetGuideSpeaking(false);tablet?.UpdateContent();}
+ public void StopForQuestion(){EndSpeech();}
+ public void SetQuestionCaption(string text){Caption=text;tablet?.UpdateContent();}
  void LateUpdate(){Avatar?.UpdatePose();Reflection?.RenderIfNeeded();}
  void OnApplicationPause(bool paused){if(voice){if(paused)voice.Pause();else voice.UnPause();}}
  void OnDestroy(){EndSpeech();}
