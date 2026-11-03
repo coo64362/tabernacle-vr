@@ -10,3 +10,9 @@ Opus synthetic round trip: pass
 Play-mode welcome, movement lock, settings and narration: pass
 Live VelChat topic/scope/exact speech checks: pass (see velchat-live-check.json)
 Unity Editor emitted a QuickSearch indexing exception; experience checks completed successfully.
+Android ARM64 APK: succeeded, zero build errors
+Package: org.tabernacle.walkthrough v0.5.0 (6), min SDK 29
+Internet and record-audio permissions: present
+APK ZIP integrity: pass
+APK SHA256: 273df0baa9c02faf45ed4e56665fc615583e77566342eed6b8653413a5504054
+Installation: deferred at user request; headset disconnected
