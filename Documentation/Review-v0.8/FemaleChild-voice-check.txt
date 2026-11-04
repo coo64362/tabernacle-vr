@@ -1,0 +1,6 @@
+16 kHz offline synthesized speech; dominant shapes observed 6. Input through real MFCC/Burst analysis: PASS; peak summed weight 100.00
+Digital mouth vowel opening and width variation: PASS; peak=0.9997303 width range=0.6498927 to 1.159944
+Finite normalized blend weights: PASS
+Capture stop closes mouth immediately: PASS
+Silent capture remains closed: PASS
+Human voice phoneme accuracy, headset microphone and sustained Quest performance: NOT TESTED

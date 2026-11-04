@@ -1,0 +1,3 @@
+Unity play-mode regression: PASS
+Natural welcome completion, movement gate, skip, replay, six audio clips, raycast avatar/face/reflection settings, height matching, guide mute, captions and station positions.
+This is not a Quest hardware test.

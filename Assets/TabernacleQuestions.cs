@@ -31,8 +31,8 @@ public sealed class TabernacleQuestions : MonoBehaviour {
  public void Initialize(TabernacleExperience owner,ControllerTablet controller){
   experience=owner;tablet=controller;persona=Resources.Load<TextAsset>("Guide/ConversationPrompt").text;
   var corpus=JsonUtility.FromJson<ScriptureSearch.Corpus>(Resources.Load<TextAsset>("Guide/Scripture").text);search=Task.Run(()=>new ScriptureSearch(corpus));contextId=Guid.NewGuid().ToString("N");
-  voice=owner.Guide.gameObject.AddComponent<AudioSource>();voice.playOnAwake=false;voice.spatialBlend=.35f;voice.minDistance=1.5f;voice.maxDistance=12;voice.volume=.85f;
-  reaction=owner.Guide.gameObject.AddComponent<AudioSource>();reaction.playOnAwake=false;reaction.spatialBlend=.35f;reaction.volume=.85f;
+  var voiceObject=new GameObject("Generated guide voice");voiceObject.transform.SetParent(owner.Guide.transform,false);voice=voiceObject.AddComponent<AudioSource>();voice.playOnAwake=false;voice.spatialBlend=.35f;voice.minDistance=1.5f;voice.maxDistance=12;voice.volume=.85f;
+  var reactionObject=new GameObject("Guide reactions");reactionObject.transform.SetParent(owner.Guide.transform,false);reaction=reactionObject.AddComponent<AudioSource>();reaction.playOnAwake=false;reaction.spatialBlend=.35f;reaction.volume=.85f;
   stream=gameObject.AddComponent<GuideAudioStream>();stream.Initialize(voice);
   talk=new InputAction("Ask guide",InputActionType.Button,"<XRController>{LeftHand}/primaryButton");talk.Enable();
   socket=new SocketIOUnity("https://chat.vn.ugavel.com",new SocketIOOptions{EIO=EngineIO.V4,Transport=SocketIOClient.Transport.TransportProtocol.WebSocket,Reconnection=true});socket.JsonSerializer=new NewtonsoftJsonSerializer();

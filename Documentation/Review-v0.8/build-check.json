@@ -1,0 +1,13 @@
+{
+  "version": "0.8.0",
+  "versionCode": 9,
+  "bytes": 124569124,
+  "sha256": "afbf83d63e24ca04dac9fbfb429d67bf6eb334ac0b93d5abf9a6f86074a2536a",
+  "buildErrors": 0,
+  "zipIntegrity": "pass",
+  "signature": "verified",
+  "architecture": "ARM64",
+  "burstLibrary": "present",
+  "microphonePermission": "present",
+  "headsetTested": false
+}

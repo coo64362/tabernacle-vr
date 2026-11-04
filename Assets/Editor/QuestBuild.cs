@@ -19,8 +19,8 @@ public static class QuestBuild {
  [MenuItem("Tabernacle/Configure and build Quest")]
  public static void Build(){
   Directory.CreateDirectory("Assets/XR");Directory.CreateDirectory("Builds");
-  PlayerSettings.companyName="Tabernacle Study";PlayerSettings.productName="Tabernacle Walkthrough";PlayerSettings.bundleVersion="0.7.0";
-  PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android,"org.tabernacle.walkthrough");PlayerSettings.Android.bundleVersionCode=8;
+  PlayerSettings.companyName="Tabernacle Study";PlayerSettings.productName="Tabernacle Walkthrough";PlayerSettings.bundleVersion="0.8.0";
+  PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android,"org.tabernacle.walkthrough");PlayerSettings.Android.bundleVersionCode=9;
   PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android,ScriptingImplementation.IL2CPP);PlayerSettings.Android.targetArchitectures=AndroidArchitecture.ARM64;
   PlayerSettings.Android.minSdkVersion=AndroidSdkVersions.AndroidApiLevel29;PlayerSettings.Android.targetSdkVersion=AndroidSdkVersions.AndroidApiLevelAuto;
   PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android,false);PlayerSettings.SetGraphicsAPIs(BuildTarget.Android,new[]{GraphicsDeviceType.OpenGLES3});

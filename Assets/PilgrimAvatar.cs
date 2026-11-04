@@ -25,8 +25,8 @@ public sealed class PilgrimAvatar : MonoBehaviour {
  public void Rebuild(){
   if(root){root.gameObject.SetActive(false);Release(root.gameObject);}if(selfRobe){selfRobe.gameObject.SetActive(false);Release(selfRobe.gameObject);}
   reflectionRig=null;selfRig=null;speechFace=null;
-  var accepted=Female&&ChildFace?Resources.Load<GameObject>("Characters/FemaleChildReady"):null;
-  if(accepted){root=Instantiate(accepted,transform,false).transform;SetLayer(root,11);reflectionRig=root.gameObject.AddComponent<RiggedPilgrimPose>();reflectionRig.Initialize(eye,left,right);speechFace=root.gameObject.AddComponent<HumanSpeechFace>();speechFace.Initialize();if(speechCapturing)speechFace.BeginCapture();var first=Resources.Load<GameObject>("Characters/FemaleChildFirstPerson");selfRobe=Instantiate(first,transform,false).transform;selfRig=selfRobe.gameObject.AddComponent<RiggedPilgrimPose>();selfRig.Initialize(eye,left,right);return;}
+  string character=Female?"FemaleChild":"MaleChild";var accepted=ChildFace?Resources.Load<GameObject>("Characters/"+character+"Ready"):null;
+  if(accepted){root=Instantiate(accepted,transform,false).transform;SetLayer(root,11);reflectionRig=root.gameObject.AddComponent<RiggedPilgrimPose>();reflectionRig.Initialize(eye,left,right);speechFace=root.gameObject.AddComponent<HumanSpeechFace>();speechFace.Initialize();if(speechCapturing)speechFace.BeginCapture();var first=Resources.Load<GameObject>("Characters/"+character+"FirstPerson");selfRobe=Instantiate(first,transform,false).transform;selfRig=selfRobe.gameObject.AddComponent<RiggedPilgrimPose>();selfRig.Initialize(eye,left,right);return;}
   root=CharacterGeometry.Group("Chosen pilgrim — reflection",transform,Vector3.zero);root.gameObject.layer=11;
   var body=CharacterGeometry.Group("Woven clothing",root,Vector3.zero);body.gameObject.layer=11;
   CharacterGeometry.Garment("Long linen robe",body,.08f,1.25f,.31f,.225f,linen,11);

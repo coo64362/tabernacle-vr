@@ -8,15 +8,17 @@ public sealed class RobotGuide : MonoBehaviour {
  public bool Thinking {get;set;}public bool Listening {get;set;}
  public AudioSource SpeechAudio {get;private set;}public string Gesture {get;private set;}="beat";public float GestureUntil {get;private set;}
  public float MouthOpen {get;private set;}public bool Walking=>follower&&follower.Walking;
+ HumanSpeechFace speechFace;
+ public float MouthWidth=>speechFace?speechFace.Width:1;
  GuideFollower follower;readonly float[] audioSamples=new float[256];
  public string LocationDescription {get{if(!viewer)return "courtyard";float z=viewer.position.z;return z<26?"courtyard":z<35.144f?"Holy Place":"Most Holy Place (educational access)";}}
- public void SetSpeechAudio(AudioSource audio){SpeechAudio=audio;Speaking=audio&&audio.isPlaying;}
+ public void SetSpeechAudio(AudioSource audio){if(SpeechAudio==audio&&speechFace)return;SpeechAudio=audio;Speaking=audio&&audio.isPlaying;if(!speechFace){speechFace=gameObject.AddComponent<HumanSpeechFace>();speechFace.AnalyseWithoutShapes=true;}speechFace.BindAudio(audio);}
  public void PlayGesture(string name,float duration){Gesture=name;GestureUntil=Time.unscaledTime+Mathf.Clamp(duration,.5f,12);}
  Vector3? pointTarget;
  public Vector3 PointTarget=>pointTarget??(transform.position+transform.forward*2+Vector3.up);
  public void PlaySpeechGesture(string text,float duration){var words=(text??"").ToLowerInvariant();pointTarget=null;string furnishing=words.Contains("incense")?"incense altar":words.Contains("lamp")?"seven lampstand":words.Contains("bread")||words.Contains("table")?"bread table":words.Contains("basin")||words.Contains("wash")?"basin":words.Contains("ark")||words.Contains("cherub")?"ark":words.Contains("altar")?"bronze altar":null;if(furnishing!=null&&TabernacleWorld.Instance){foreach(Transform child in TabernacleWorld.Instance.transform)if(child.name=="Furnishing — "+furnishing){pointTarget=child.position+Vector3.up*.9f;break;}}PlayGesture(GuideSpeechGesture.FromWords(text),duration);}
 
- void Update(){float target=0;if(SpeechAudio&&SpeechAudio.isPlaying&&!SpeechAudio.mute){SpeechAudio.GetOutputData(audioSamples,0);float sum=0;foreach(var sample in audioSamples)sum+=sample*sample;target=Mathf.Clamp01(Mathf.Sqrt(sum/audioSamples.Length)*5);}MouthOpen=Mathf.Lerp(MouthOpen,target,1-Mathf.Exp(-Time.unscaledDeltaTime*(target>MouthOpen?30:16)));}
+ void Update(){float target=0;if(speechFace){target=speechFace.Openness;}else if(SpeechAudio&&SpeechAudio.isPlaying&&!SpeechAudio.mute){SpeechAudio.GetOutputData(audioSamples,0);float sum=0;foreach(var sample in audioSamples)sum+=sample*sample;target=Mathf.Clamp01(Mathf.Sqrt(sum/audioSamples.Length)*5);}MouthOpen=Mathf.Lerp(MouthOpen,target,1-Mathf.Exp(-Time.unscaledDeltaTime*(target>MouthOpen?30:16)));}
 
  Material New(string name,Color color){var m=CharacterGeometry.Material(name,color);materials.Add(m);return m;}
  Transform Part(string name,Transform parent,Vector3 p,Vector3 size,Material m)=>CharacterGeometry.Oval(name,parent,p,size,m);

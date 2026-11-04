@@ -1,0 +1,4 @@
+Boy/girl imported skins, six speech morphs, finger chains, normalized weights, materials, headless first-person meshes: PASS
+Playback queue: stereo downmix, actual frame count, overflow bound and stop clearing: PASS
+Visitor gestures: wave, nod, cooldown, speech suppression and missing-tracking suppression: PASS
+Headset appearance, gesture reliability and performance: NOT TESTED

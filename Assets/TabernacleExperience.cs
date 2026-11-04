@@ -33,6 +33,7 @@ public sealed class TabernacleExperience : MonoBehaviour {
   Guide=new GameObject("Sandy robot guide").AddComponent<RobotGuide>();Guide.transform.SetParent(transform,false);Guide.Initialize(eye.transform);SetGuideVisible(GuideVisible);
   voice=Guide.gameObject.AddComponent<AudioSource>();voice.playOnAwake=false;voice.spatialBlend=.35f;voice.minDistance=1.5f;voice.maxDistance=12;voice.rolloffMode=AudioRolloffMode.Linear;voice.priority=32;voice.volume=.85f;
   Reflection=new GameObject("Laver reflection system").AddComponent<LaverReflection>();Reflection.transform.SetParent(transform,false);Reflection.Initialize(eye);Reflection.Enabled=PlayerPrefs.GetInt("AvatarReflection",1)!=0;
+  var gestures=gameObject.AddComponent<GuideVisitorGestures>();gestures.Initialize(this,eye.transform,left,right);
   Questions=gameObject.AddComponent<TabernacleQuestions>();Questions.Initialize(this,tablet);
   IntroductionPlaying=true;speech=StartCoroutine(Speak(0,true,true));
  }

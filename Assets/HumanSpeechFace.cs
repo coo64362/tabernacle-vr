@@ -5,11 +5,15 @@ using uLipSync;
 
 // Local phoneme estimation, shared by microphone reflections and future speaking humans.
 // Speech is analysed, never played back, when fed by the question microphone.
+[DefaultExecutionOrder(80)]
 public sealed class HumanSpeechFace : MonoBehaviour {
  static readonly string[] Sounds={"A","I","U","E","O","N"};
  sealed class Face {public SkinnedMeshRenderer skin;public int[] shapes;}
  readonly List<Face> faces=new List<Face>();readonly float[] weights=new float[6],targets=new float[6];
- uLipSync.uLipSync analyser;AudioSource source;readonly float[] playbackSamples=new float[1024];float[] resampled;
+ uLipSync.uLipSync analyser;AudioSource source;readonly float[] playbackSamples=new float[2048];float[] resampled;SpeechAudioTap tap;
+ public bool AnalyseWithoutShapes {get;set;}
+ public float Openness {get;private set;}
+ public float Width {get;private set;}=1;
  float lastInput=-100,level;bool capture;int rate,lastPoseFrame=-1;
  public bool HasSpeechShapes=>faces.Count>0;
  public void Initialize(){
@@ -19,30 +23,31 @@ public sealed class HumanSpeechFace : MonoBehaviour {
    for(int k=0;k<6;k++){indices[k]=-1;for(int i=0;i<mesh.blendShapeCount;i++)if(mesh.GetBlendShapeName(i).EndsWith("Viseme_"+Sounds[k],StringComparison.Ordinal))indices[k]=i;valid&=indices[k]>=0;}
    if(valid)faces.Add(new Face{skin=skin,shapes=indices});
   }
-  if(!HasSpeechShapes)return;
+  if(!HasSpeechShapes&&!AnalyseWithoutShapes)return;
   // Set the profile before enabling the analyser, so its native buffers have the right size.
   var host=new GameObject("Local speech analysis");host.transform.SetParent(transform,false);host.SetActive(false);
   analyser=host.AddComponent<uLipSync.uLipSync>();analyser.profile=Resources.Load<Profile>("Speech/VisitorProfile");
   if(!analyser.profile){Destroy(host);analyser=null;Debug.LogError("Human speech profile missing");return;}
   analyser.onLipSyncUpdate.AddListener(Receive);analyser.enabled=false;host.SetActive(true);
  }
- public void BeginCapture(){Initialize();source=null;capture=true;Clear();if(analyser)analyser.enabled=true;}
+ public void BeginCapture(){Initialize();ReleaseTap();source=null;capture=true;Clear();if(analyser)analyser.enabled=true;}
  public void EndCapture(){capture=false;Clear();if(analyser)analyser.enabled=false;}
- public void BindAudio(AudioSource speech){Initialize();capture=false;source=speech;Clear();if(analyser)analyser.enabled=speech;}
+ public void BindAudio(AudioSource speech){Initialize();ReleaseTap();capture=false;source=speech;Clear();if(analyser)analyser.enabled=speech;if(source){tap=source.GetComponent<SpeechAudioTap>();if(!tap)tap=source.gameObject.AddComponent<SpeechAudioTap>();tap.SetAccepting(true);}}
+ void ReleaseTap(){if(tap)tap.SetAccepting(false);tap=null;}
  public void Feed(float[] mono,int sampleRate){
   if(!capture||!analyser||mono==null||mono.Length==0||sampleRate<8000)return;
-  FeedInternal(mono,sampleRate);
+  FeedInternal(mono,sampleRate,mono.Length);
  }
- void FeedInternal(float[] mono,int sampleRate){
+ void FeedInternal(float[] mono,int sampleRate,int count){
   rate=AudioSettings.outputSampleRate;
-  int length=Mathf.RoundToInt(mono.Length*(float)rate/sampleRate);if(length<1)return;
+  int length=Mathf.RoundToInt(count*(float)rate/sampleRate);if(length<1)return;
   if(resampled==null||resampled.Length!=length)resampled=new float[length];
-  double energy=0;for(int i=0;i<mono.Length;i++)energy+=mono[i]*mono[i];level=(float)Math.Sqrt(energy/mono.Length);
-  for(int i=0;i<length;i++){float p=i*(float)sampleRate/rate;int a=Math.Min((int)p,mono.Length-1),b=Math.Min(a+1,mono.Length-1);resampled[i]=Mathf.Lerp(mono[a],mono[b],p-a);}
+  double energy=0;for(int i=0;i<count;i++)energy+=mono[i]*mono[i];level=(float)Math.Sqrt(energy/count);
+  for(int i=0;i<length;i++){float p=i*(float)sampleRate/rate;int a=Math.Min((int)p,count-1),b=Math.Min(a+1,count-1);resampled[i]=Mathf.Lerp(mono[a],mono[b],p-a);}
   analyser.OnDataReceived(resampled,1);lastInput=Time.realtimeSinceStartup;
  }
  void Update(){
-  if(source&&source.isPlaying&&!source.mute){source.GetOutputData(playbackSamples,0);FeedInternal(playbackSamples,AudioSettings.outputSampleRate);}
+  if(tap){bool playing=source&&source.isPlaying&&!source.mute;tap.SetAccepting(playing);if(!playing){lastInput=-100;Array.Clear(targets,0,6);}if(playing)for(int i=0;i<8&&tap.TryRead(playbackSamples,out int count);i++)FeedInternal(playbackSamples,AudioSettings.outputSampleRate,count);}
  }
  void Receive(LipSyncInfo info){
   Array.Clear(targets,0,targets.Length);
@@ -59,8 +64,10 @@ public sealed class HumanSpeechFace : MonoBehaviour {
   if(lastPoseFrame==Time.frameCount)return;lastPoseFrame=Time.frameCount;
   if(Time.realtimeSinceStartup-lastInput>.15f||(!capture&&(!source||!source.isPlaying)))Array.Clear(targets,0,6);
   float blend=1-Mathf.Exp(-Time.unscaledDeltaTime/ .045f);
-  for(int i=0;i<6;i++){weights[i]=Mathf.Lerp(weights[i],targets[i],blend);foreach(var face in faces)if(face.skin)face.skin.SetBlendShapeWeight(face.shapes[i],weights[i]*100);}
+  float sum=0;for(int i=0;i<6;i++){weights[i]=Mathf.Lerp(weights[i],targets[i],blend);sum+=weights[i];foreach(var face in faces)if(face.skin)face.skin.SetBlendShapeWeight(face.shapes[i],weights[i]*100);}
+  Openness=Mathf.Clamp01(weights[0]+weights[1]*.4f+weights[2]*.8f+weights[3]*.52f+weights[4]+weights[5]*.08f);
+  Width=sum>.001f?Mathf.Lerp(1,(weights[0]+weights[1]*1.16f+weights[2]*.62f+weights[3]*1.13f+weights[4]*.7f+weights[5])/sum,Mathf.Clamp01(sum*3)):1;
  }
- void Clear(){lastInput=-100;level=0;Array.Clear(targets,0,6);Array.Clear(weights,0,6);foreach(var face in faces)if(face.skin)foreach(int index in face.shapes)face.skin.SetBlendShapeWeight(index,0);}
- void OnDisable(){capture=false;source=null;Clear();if(analyser)analyser.enabled=false;}
+ void Clear(){Openness=0;Width=1;lastInput=-100;level=0;Array.Clear(targets,0,6);Array.Clear(weights,0,6);foreach(var face in faces)if(face.skin)foreach(int index in face.shapes)face.skin.SetBlendShapeWeight(index,0);}
+ void OnDisable(){ReleaseTap();capture=false;source=null;Clear();if(analyser)analyser.enabled=false;}
 }

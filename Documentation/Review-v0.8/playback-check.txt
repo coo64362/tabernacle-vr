@@ -1,0 +1,4 @@
+Actual AudioSource welcome playback → audio callback queue → local MFCC → digital mouth: PASS
+Peak opening: 0.919511; width range: 0.62–1.16
+Playback stop closes mouth: PASS
+Playback reviewed with the normal audio graph. Quest latency and phoneme accuracy: NOT TESTED

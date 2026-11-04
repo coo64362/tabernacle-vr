@@ -24,11 +24,13 @@ Shader "Tabernacle/Character" {
    fixed4 frag(v2f i):SV_Target {
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
     half3 n=normalize(i.normal); half3 l=normalize(half3(-.4,.75,.65));
-    half shade=.48+.45*saturate(dot(n,l));
+    half wrap=saturate((dot(n,l)+.18)/1.18);
+    half shade=.43+.50*wrap;
     half3 base=tex2D(_MainTex,i.uv).rgb*_Color.rgb;
     // A restrained mobile material: no realtime shadows, reflection probes or transparency.
     half spec=pow(saturate(dot(n,normalize(l+normalize(_WorldSpaceCameraPos-i.world)))),32)*_Metal;
-    fixed4 c=fixed4(base*lerp(shade,1,_Glow)+spec*half3(.65,.48,.24),1);
+    half rim=pow(1-saturate(dot(n,normalize(_WorldSpaceCameraPos-i.world))),3)*.035*(1-_Glow);
+    fixed4 c=fixed4(base*lerp(shade,1,_Glow)+spec*half3(.65,.48,.24)+base*rim,1);
     UNITY_APPLY_FOG(i.fogCoord,c); return c;
    }
    ENDCG
